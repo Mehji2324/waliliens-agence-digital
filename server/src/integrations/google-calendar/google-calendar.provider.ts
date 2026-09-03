@@ -6,6 +6,8 @@ import type { BookingSlot, BookingRequest } from '../../types/domain';
 import { bookingsRepository } from '../../repositories/bookings.repository';
 import { AppError, ConflictError, ValidationError, NotFoundError } from '../../utils/http-errors';
 import type { GoogleCalendarEventResult } from './google-calendar.types';
+import { emailService } from '../email/email.service';
+import type { BookingEmailData, EmailNotificationStatus } from '../email/email.types';
 
 export class CalendarUnavailableError extends AppError {
   constructor(message = 'Booking availability is temporarily unavailable') {
@@ -27,6 +29,7 @@ export interface IBookingProvider {
     slotId: string;
     meetingUrl: string;
     provider: 'google_calendar' | 'database' | 'mock';
+    emailNotification?: EmailNotificationStatus;
     message: string;
   }>;
   cancelEvent?(eventId: string): Promise<void>;
@@ -335,6 +338,7 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
     slotId: string;
     meetingUrl: string;
     provider: 'google_calendar' | 'database' | 'mock';
+    emailNotification?: EmailNotificationStatus;
     message: string;
   }> {
     // 1. Verify slot exists and is available
@@ -376,6 +380,7 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
     const meetingUrl = googleEvent?.meetingUrl || `https://meet.google.com/waliliens-discovery-${publicBookingId.toLowerCase()}`;
 
     // 3. Atomically persist booking in PostgreSQL database
+    let isPersistedLocally = false;
     try {
       await bookingsRepository.createBooking({
         id: internalId,
@@ -398,22 +403,8 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
         updatedAt: new Date(),
       });
 
+      isPersistedLocally = true;
       console.log(`[GoogleCalendarBookingProvider] Confirmed booking [${publicBookingId}] for ${request.name} (${request.email}) on ${request.date} at ${candidate.startTime}`);
-
-      return {
-        bookingId: publicBookingId,
-        status: 'confirmed',
-        durationMinutes: 30,
-        scheduledTime: `${request.date} at ${candidate.timeLabel}`,
-        date: request.date,
-        startTime: candidate.startTime,
-        endTime: candidate.endTime,
-        timezone: env.booking.timezone,
-        slotId: request.slotId,
-        meetingUrl,
-        provider: googleEvent ? 'google_calendar' : 'database',
-        message: '30-minute discovery call scheduled successfully with Google Calendar & Google Meet.',
-      };
     } catch (dbErr) {
       const isConflict =
         dbErr instanceof ConflictError ||
@@ -443,28 +434,50 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
 
         this.fallbackReservedSlots.add(request.slotId);
         console.warn('[GoogleCalendarBookingProvider] Database offline, buffered in fallback memory:', errMsg);
-
-        return {
-          bookingId: publicBookingId,
-          status: 'confirmed',
-          durationMinutes: 30,
-          scheduledTime: `${request.date} at ${candidate.timeLabel}`,
-          date: request.date,
-          startTime: candidate.startTime,
-          endTime: candidate.endTime,
-          timezone: env.booking.timezone,
-          slotId: request.slotId,
-          meetingUrl,
-          provider: googleEvent ? 'google_calendar' : 'mock',
-          message: '30-minute discovery call scheduled successfully (Development Buffer).',
-        };
+      } else {
+        if (googleEvent?.eventId) {
+          await this.cancelEvent(googleEvent.eventId);
+        }
+        throw dbErr;
       }
-
-      // In production or other unhandled errors:
-      if (googleEvent?.eventId) {
-        await this.cancelEvent(googleEvent.eventId);
-      }
-      throw dbErr;
     }
+
+    // 4. Dispatch Email Notifications (Phase 6)
+    // Email failure must NOT invalidate a successful booking.
+    const emailData: BookingEmailData = {
+      bookingId: publicBookingId,
+      clientName: request.name,
+      clientEmail: request.email,
+      company: request.company,
+      projectScope: request.projectScope,
+      date: request.date,
+      time: candidate.timeLabel,
+      durationMinutes: 30,
+      timezone: env.booking.timezone,
+      meetingUrl,
+    };
+
+    let emailNotification: EmailNotificationStatus = { client: 'skipped', team: 'skipped' };
+    try {
+      emailNotification = await emailService.sendAllBookingEmails(emailData);
+    } catch (emailErr) {
+      console.error('[GoogleCalendarBookingProvider] Unexpected error during email notifications:', emailErr);
+    }
+
+    return {
+      bookingId: publicBookingId,
+      status: 'confirmed',
+      durationMinutes: 30,
+      scheduledTime: `${request.date} at ${candidate.timeLabel}`,
+      date: request.date,
+      startTime: candidate.startTime,
+      endTime: candidate.endTime,
+      timezone: env.booking.timezone,
+      slotId: request.slotId,
+      meetingUrl,
+      provider: googleEvent ? 'google_calendar' : isPersistedLocally ? 'database' : 'mock',
+      emailNotification,
+      message: '30-minute discovery call scheduled successfully with Google Calendar & Google Meet.',
+    };
   }
 }

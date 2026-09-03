@@ -54,6 +54,11 @@ const googleCalendarExplicit = process.env.GOOGLE_CALENDAR_ENABLED !== undefined
   ? parseBool('GOOGLE_CALENDAR_ENABLED', true)
   : hasGoogleCredentials;
 
+const resendApiKey = process.env.RESEND_API_KEY ?? '';
+const emailFrom = process.env.EMAIL_FROM || 'Waliliens <hello@waliliens.com>';
+const bookingNotificationEmail = process.env.BOOKING_NOTIFICATION_EMAIL || 'hello@waliliens.com';
+const emailEnabled = parseBool('EMAIL_ENABLED', Boolean(resendApiKey));
+
 export const env = {
   port: requireInt('PORT', 4000),
   nodeEnv: (process.env.NODE_ENV ?? 'development') as 'development' | 'production' | 'test',
@@ -79,6 +84,14 @@ export const env = {
     startHour: requireInt('BOOKING_START_HOUR', 10),
     endHour: requireInt('BOOKING_END_HOUR', 18),
     minNoticeMinutes: requireInt('BOOKING_MIN_NOTICE_MINUTES', 120),
+  },
+  // Email Integration Config (Phase 6 - Resend)
+  email: {
+    apiKey: resendApiKey,
+    from: emailFrom,
+    notificationRecipient: bookingNotificationEmail,
+    enabled: emailEnabled && Boolean(resendApiKey),
+    isConfigured: Boolean(resendApiKey),
   },
 } as const;
 

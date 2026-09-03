@@ -5,6 +5,7 @@ import {
   GoogleCalendarBookingProvider,
   type IBookingProvider,
 } from '../integrations/google-calendar/google-calendar.provider';
+import type { EmailNotificationStatus } from '../integrations/email/email.types';
 
 export const bookingReserveSchema = z.object({
   slotId: z.string().trim().min(1, { message: 'slotId is required' }),
@@ -49,6 +50,7 @@ export interface BookingConfirmation {
   slotId: string;
   meetingUrl: string;
   provider: 'google_calendar' | 'database' | 'mock';
+  emailNotification?: EmailNotificationStatus;
   message: string;
 }
 

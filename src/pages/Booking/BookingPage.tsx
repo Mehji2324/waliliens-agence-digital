@@ -11,7 +11,7 @@ import { useSeo } from '../../hooks/useSeo';
 import { soundManager } from '../../utils/sound';
 import { useCursor } from '../../context/CursorContext';
 import confetti from 'canvas-confetti';
-import { Clock, Video, CheckCircle2, UserCheck, Shield, ExternalLink } from 'lucide-react';
+import { Clock, Video, CheckCircle2, UserCheck, Shield, ExternalLink, Mail, Calendar } from 'lucide-react';
 import type { BookingSlot, BookingRequest } from '../../types';
 
 export const BookingPage: React.FC = () => {
@@ -143,19 +143,21 @@ export const BookingPage: React.FC = () => {
           {/* Booking Flow Container */}
           <div className="lg:col-span-8 rounded-3xl border border-white/15 bg-obsidian-900/90 p-7 sm:p-10 backdrop-blur-2xl shadow-2xl">
             {status === 'success' && confirmationData ? (
-              <div className="flex flex-col items-center py-8 text-center">
+              <div className="flex flex-col items-center py-6 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full border border-cyber-emerald/40 bg-cyber-emerald/10 text-cyber-emerald shadow-[0_0_35px_rgba(16,185,129,0.25)]">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
+                
                 <h3 className="mt-5 font-display text-2xl font-bold text-white sm:text-3xl">
-                  Discovery Call Confirmed
+                  Booking Confirmed
                 </h3>
+                
                 <p className="mt-2 max-w-md text-sm text-neutral-300">
-                  We look forward to speaking with you, <span className="font-semibold text-white">{formData.name}</span>.
+                  Your 30-minute discovery call has been booked successfully with Waliliens partners.
                 </p>
 
                 {/* Meeting Credentials Card */}
-                <div className="mt-6 w-full max-w-md rounded-2xl border border-white/10 bg-obsidian-950/80 p-5 text-left font-mono text-xs space-y-2.5">
+                <div className="mt-6 w-full max-w-md rounded-2xl border border-white/10 bg-obsidian-950/80 p-5 text-left font-mono text-xs space-y-3 shadow-inner">
                   <div className="flex justify-between text-neutral-400">
                     <span>BOOKING ID:</span>
                     <span className="text-white font-bold">{confirmationData.bookingId}</span>
@@ -164,22 +166,42 @@ export const BookingPage: React.FC = () => {
                     <span>SCHEDULED TIME:</span>
                     <span className="text-cyber-cyan font-bold">{confirmationData.scheduledTime}</span>
                   </div>
-                  <div className="flex justify-between text-neutral-400 items-center">
+                  <div className="flex justify-between text-neutral-400">
+                    <span>DURATION:</span>
+                    <span className="text-neutral-200">30 Minutes</span>
+                  </div>
+                  <div className="flex justify-between text-neutral-400 items-center pt-1 border-t border-white/5">
                     <span>GOOGLE MEET:</span>
                     {confirmationData.meetingUrl ? (
-                      <a
-                        href={confirmationData.meetingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-cyber-cyan font-bold hover:underline flex items-center gap-1.5 truncate max-w-[220px]"
-                      >
-                        <span className="truncate">{confirmationData.meetingUrl.replace(/^https?:\/\//, '')}</span>
-                        <ExternalLink className="h-3 w-3 shrink-0" />
-                      </a>
+                      <span className="text-cyber-cyan font-semibold truncate max-w-[200px]">
+                        Available Below
+                      </span>
                     ) : (
                       <span className="text-cyber-violet truncate max-w-[200px]">Dispatched to Email</span>
                     )}
                   </div>
+                </div>
+
+                {/* Polished Join Google Meet CTA Button */}
+                {confirmationData.meetingUrl && (
+                  <div className="mt-6 w-full max-w-md">
+                    <a
+                      href={confirmationData.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-cyber-cyan to-blue-500 py-3.5 px-6 font-mono text-xs font-bold text-obsidian-950 shadow-[0_0_25px_rgba(0,240,255,0.3)] transition-all hover:shadow-[0_0_35px_rgba(0,240,255,0.5)] hover:scale-[1.02]"
+                    >
+                      <Video className="h-4 w-4" />
+                      <span>JOIN GOOGLE MEET</span>
+                      <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </a>
+                  </div>
+                )}
+
+                {/* Email Confirmation Notice */}
+                <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 font-mono text-[11px] text-neutral-400 max-w-md">
+                  <Mail className="h-3.5 w-3.5 text-cyber-cyan shrink-0" />
+                  <span>A confirmation email has been sent to <strong className="text-neutral-200">{formData.email}</strong></span>
                 </div>
 
                 <button
@@ -187,7 +209,7 @@ export const BookingPage: React.FC = () => {
                     soundManager.playClick();
                     setStatus('idle');
                   }}
-                  className="mt-6 rounded-full border border-white/20 bg-white/5 px-5 py-2 font-mono text-xs text-neutral-300 hover:bg-white/10"
+                  className="mt-6 rounded-full border border-white/10 bg-white/5 px-5 py-2 font-mono text-xs text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
                 >
                   SCHEDULE ANOTHER CALL
                 </button>
@@ -330,8 +352,12 @@ export const BookingPage: React.FC = () => {
                   <span><strong>Senior Partner Access</strong> — no sales representatives or junior account handlers.</span>
                 </div>
                 <div className="flex items-start gap-2.5">
+                  <Calendar className="h-4 w-4 text-cyber-cyan shrink-0 mt-0.5" />
+                  <span><strong>Instant Calendar Invite</strong> — Google Meet credentials dispatched to your inbox.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
                   <Shield className="h-4 w-4 text-cyber-violet shrink-0 mt-0.5" />
-                  <span><strong>Direct Next Steps</strong> — we deliver an initial scope & budget estimate within 48 hours.</span>
+                  <span><strong>Direct Next Steps</strong> — actionable architectural roadmap delivered within 48 hours.</span>
                 </div>
               </div>
             </div>

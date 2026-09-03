@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GoogleCalendarBookingProvider } from './google-calendar.provider';
 import { bookingsRepository } from '../../repositories/bookings.repository';
+import { emailService } from '../email/email.service';
 import type { calendar_v3 } from 'googleapis';
 
 describe('GoogleCalendarBookingProvider', () => {
@@ -82,9 +83,7 @@ describe('GoogleCalendarBookingProvider', () => {
 
       mockCalendar.freebusy.query.mockResolvedValue({
         data: {
-          calendars: {
-            primary: { busy: [] },
-          },
+          calendars: { primary: { busy: [] } },
         },
       });
 
@@ -122,7 +121,7 @@ describe('GoogleCalendarBookingProvider', () => {
   });
 
   describe('Booking Creation & Google Meet Link Generation', () => {
-    it('creates Google Calendar event with authentic Meet URL and persists to DB', async () => {
+    it('creates Google Calendar event with authentic Meet URL, persists to DB, and triggers emails', async () => {
       const targetDate = '2026-10-15';
 
       mockCalendar.freebusy.query.mockResolvedValue({
@@ -169,6 +168,11 @@ describe('GoogleCalendarBookingProvider', () => {
         updatedAt: new Date(),
       });
 
+      const emailSpy = vi.spyOn(emailService, 'sendAllBookingEmails').mockResolvedValue({
+        client: 'sent',
+        team: 'sent',
+      });
+
       const result = await provider.reserveSlot({
         slotId: `${targetDate}-slot-1`,
         date: targetDate,
@@ -183,11 +187,72 @@ describe('GoogleCalendarBookingProvider', () => {
       expect(result.status).toBe('confirmed');
       expect(result.durationMinutes).toBe(30);
       expect(result.meetingUrl).toBe('https://meet.google.com/wal-disc-123');
+      expect(result.emailNotification).toEqual({ client: 'sent', team: 'sent' });
       expect(mockCalendar.events.insert).toHaveBeenCalledTimes(1);
       expect(createBookingSpy).toHaveBeenCalledTimes(1);
+      expect(emailSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('cleans up Google Calendar event if local DB insertion fails with conflict', async () => {
+    it('persists booking successfully even if email notifications fail', async () => {
+      const targetDate = '2026-10-15';
+
+      mockCalendar.freebusy.query.mockResolvedValue({
+        data: {
+          calendars: { primary: { busy: [] } },
+        },
+      });
+
+      mockCalendar.events.insert.mockResolvedValue({
+        data: {
+          id: 'google-event-xyz-789',
+          status: 'confirmed',
+          hangoutLink: 'https://meet.google.com/wal-disc-123',
+        },
+      });
+
+      vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([]);
+      vi.spyOn(bookingsRepository, 'createBooking').mockResolvedValue({
+        id: 'db-id-1',
+        bookingId: 'BK_ABC123',
+        slotId: `${targetDate}-slot-1`,
+        date: targetDate,
+        startTime: '10:00',
+        endTime: '10:30',
+        durationMinutes: 30,
+        name: 'Alex Rivera',
+        email: 'alex@waliliens.com',
+        company: null,
+        projectScope: null,
+        timezone: 'Africa/Casablanca',
+        status: 'confirmed',
+        googleEventId: 'google-event-xyz-789',
+        googleCalendarId: 'primary',
+        meetingUrl: 'https://meet.google.com/wal-disc-123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      vi.spyOn(emailService, 'sendAllBookingEmails').mockResolvedValue({
+        client: 'failed',
+        team: 'failed',
+      });
+
+      const result = await provider.reserveSlot({
+        slotId: `${targetDate}-slot-1`,
+        date: targetDate,
+        time: '10:00 AM',
+        name: 'Alex Rivera',
+        email: 'alex@waliliens.com',
+        company: '',
+        projectScope: '',
+        timezone: 'Africa/Casablanca',
+      });
+
+      expect(result.status).toBe('confirmed');
+      expect(result.emailNotification).toEqual({ client: 'failed', team: 'failed' });
+    });
+
+    it('cleans up Google Calendar event if local DB insertion fails with conflict and does NOT send emails', async () => {
       const targetDate = '2026-10-15';
 
       mockCalendar.freebusy.query.mockResolvedValue({
@@ -209,6 +274,7 @@ describe('GoogleCalendarBookingProvider', () => {
 
       vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([]);
       vi.spyOn(bookingsRepository, 'createBooking').mockRejectedValue(new Error('Unique constraint violated'));
+      const emailSpy = vi.spyOn(emailService, 'sendAllBookingEmails');
 
       await expect(
         provider.reserveSlot({
@@ -223,12 +289,13 @@ describe('GoogleCalendarBookingProvider', () => {
         })
       ).rejects.toThrow();
 
-      // Verifies that cleanup / deletion was attempted
+      // Verifies that cleanup was attempted and no email was sent
       expect(mockCalendar.events.delete).toHaveBeenCalledWith(
         expect.objectContaining({
           eventId: 'orphan-event-123',
         })
       );
+      expect(emailSpy).not.toHaveBeenCalled();
     });
   });
 });
