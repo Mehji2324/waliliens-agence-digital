@@ -33,6 +33,12 @@ export interface IBookingProvider {
     message: string;
   }>;
   cancelEvent?(eventId: string): Promise<void>;
+  updateCalendarEvent?(params: {
+    eventId: string;
+    startIso: string;
+    endIso: string;
+    summary?: string;
+  }): Promise<{ eventId: string; meetingUrl?: string }>;
 }
 
 export class GoogleCalendarBookingProvider implements IBookingProvider {
@@ -276,7 +282,6 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
         throw new Error('Google Calendar event insertion did not return an event ID.');
       }
 
-      // Extract authentic Google Meet link
       let meetingUrl = '';
       if (event.conferenceData?.entryPoints) {
         const videoEntryPoint = event.conferenceData.entryPoints.find(
@@ -307,7 +312,49 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
   }
 
   /**
-   * Cancels/deletes a Google Calendar event. Used for cleanup if DB transaction fails.
+   * Updates an existing Google Calendar event's time and date (Used for rescheduling).
+   */
+  public async updateCalendarEvent(params: {
+    eventId: string;
+    startIso: string;
+    endIso: string;
+    summary?: string;
+  }): Promise<{ eventId: string; meetingUrl?: string }> {
+    if (!GoogleCalendarClientFactory.isConfigured() && !this.calendarClientOverride) {
+      return { eventId: params.eventId };
+    }
+
+    try {
+      const calendar = this.getCalendar();
+      const res = await calendar.events.patch({
+        calendarId: env.googleCalendar.calendarId,
+        eventId: params.eventId,
+        sendUpdates: 'all',
+        requestBody: {
+          start: { dateTime: params.startIso, timeZone: env.booking.timezone },
+          end: { dateTime: params.endIso, timeZone: env.booking.timezone },
+          ...(params.summary ? { summary: params.summary } : {}),
+        },
+      });
+
+      let meetingUrl = '';
+      if (res.data.conferenceData?.entryPoints) {
+        const videoEntryPoint = res.data.conferenceData.entryPoints.find((ep) => ep.entryPointType === 'video');
+        meetingUrl = videoEntryPoint?.uri || '';
+      }
+      if (!meetingUrl && res.data.hangoutLink) {
+        meetingUrl = res.data.hangoutLink;
+      }
+
+      return { eventId: params.eventId, meetingUrl: meetingUrl || undefined };
+    } catch (err) {
+      console.warn(`[Google Calendar] Could not patch event ${params.eventId}:`, err instanceof Error ? err.message : err);
+      return { eventId: params.eventId };
+    }
+  }
+
+  /**
+   * Cancels/deletes a Google Calendar event.
    */
   public async cancelEvent(eventId: string): Promise<void> {
     try {
@@ -315,9 +362,9 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
       await calendar.events.delete({
         calendarId: env.googleCalendar.calendarId,
         eventId,
-        sendUpdates: 'none',
+        sendUpdates: 'all',
       });
-      console.log(`[Google Calendar] Cleaned up event ${eventId}`);
+      console.log(`[Google Calendar] Cleaned up/cancelled event ${eventId}`);
     } catch (err) {
       console.warn(`[Google Calendar] Failed to delete event ${eventId}:`, err instanceof Error ? err.message : err);
     }
@@ -389,7 +436,7 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
         date: request.date,
         startTime: candidate.startTime,
         endTime: candidate.endTime,
-        durationMinutes: 30, // Authoritative 30 minutes
+        durationMinutes: 30,
         name: request.name,
         email: request.email,
         company: request.company || null,
@@ -443,7 +490,6 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
     }
 
     // 4. Dispatch Email Notifications (Phase 6)
-    // Email failure must NOT invalidate a successful booking.
     const emailData: BookingEmailData = {
       bookingId: publicBookingId,
       clientName: request.name,

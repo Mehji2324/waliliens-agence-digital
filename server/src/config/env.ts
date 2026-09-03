@@ -59,6 +59,9 @@ const emailFrom = process.env.EMAIL_FROM || 'Waliliens <hello@waliliens.com>';
 const bookingNotificationEmail = process.env.BOOKING_NOTIFICATION_EMAIL || 'hello@waliliens.com';
 const emailEnabled = parseBool('EMAIL_ENABLED', Boolean(resendApiKey));
 
+// Default dev bcrypt hash for "WaliliensAdmin2026!"
+const defaultAdminHash = '$2b$10$wK52r1r7jVl0n5h5u1P4O.Wp6rL3o9f2z7m5y1v8x0t4u3q2s1a9e';
+
 export const env = {
   port: requireInt('PORT', 4000),
   nodeEnv: (process.env.NODE_ENV ?? 'development') as 'development' | 'production' | 'test',
@@ -68,7 +71,7 @@ export const env = {
     windowMinutes: requireInt('RATE_LIMIT_WINDOW_MINUTES', 15),
     maxRequests: requireInt('RATE_LIMIT_MAX_REQUESTS', 10),
   },
-  // Google Calendar Integration Config
+  // Google Calendar Integration Config (Phase 5)
   googleCalendar: {
     enabled: googleCalendarExplicit,
     clientId: googleClientId,
@@ -92,6 +95,14 @@ export const env = {
     notificationRecipient: bookingNotificationEmail,
     enabled: emailEnabled && Boolean(resendApiKey),
     isConfigured: Boolean(resendApiKey),
+  },
+  // Admin Authentication Config (Phase 7)
+  admin: {
+    email: process.env.ADMIN_EMAIL || 'admin@waliliens.com',
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || defaultAdminHash,
+    sessionSecret: process.env.SESSION_SECRET || 'waliliens_secure_session_secret_change_in_production_2026',
+    cookieName: 'walili_admin_session',
+    tokenExpiryHours: 24,
   },
 } as const;
 

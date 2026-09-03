@@ -81,8 +81,10 @@ export const contactSubmissionsTable = pgTable(
     services: jsonb('services').$type<string[]>().notNull().default([]),
     message: text('message').notNull(),
     status: varchar('status', { length: 50 }).notNull().default('new'), // new | processed | archived
+    notes: text('notes'),
     receivedAt: timestamp('received_at', { withTimezone: true }).defaultNow().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index('contact_submissions_email_idx').on(table.email),
@@ -111,18 +113,40 @@ export const bookingsTable = pgTable(
     googleEventId: varchar('google_event_id', { length: 255 }),
     googleCalendarId: varchar('google_calendar_id', { length: 255 }),
     meetingUrl: text('meeting_url'),
+    notes: text('notes'),
+    cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+    rescheduledAt: timestamp('rescheduled_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex('bookings_booking_id_idx').on(table.bookingId),
-    uniqueIndex('bookings_slot_date_unique_idx').on(table.slotId, table.date),
     index('bookings_slot_id_idx').on(table.slotId),
     index('bookings_date_idx').on(table.date),
     index('bookings_email_idx').on(table.email),
     index('bookings_status_idx').on(table.status),
     index('bookings_google_event_idx').on(table.googleEventId),
     index('bookings_created_at_idx').on(table.createdAt),
+  ]
+);
+
+// ─── Admin Audit Logs Table ──────────────────────────────────────────────────
+export const adminAuditLogsTable = pgTable(
+  'admin_audit_logs',
+  {
+    id: varchar('id', { length: 128 }).primaryKey(),
+    action: varchar('action', { length: 100 }).notNull(), // login | logout | cancel_booking | reschedule_booking | update_contact
+    targetType: varchar('target_type', { length: 50 }).notNull(), // booking | contact | auth
+    targetId: varchar('target_id', { length: 128 }),
+    adminEmail: varchar('admin_email', { length: 255 }).notNull(),
+    details: jsonb('details').$type<Record<string, unknown>>().notNull().default({}),
+    ipAddress: varchar('ip_address', { length: 100 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('admin_audit_logs_action_idx').on(table.action),
+    index('admin_audit_logs_target_idx').on(table.targetType, table.targetId),
+    index('admin_audit_logs_created_at_idx').on(table.createdAt),
   ]
 );
 
@@ -137,3 +161,6 @@ export type SelectContactSubmission = typeof contactSubmissionsTable.$inferSelec
 
 export type InsertBooking = typeof bookingsTable.$inferInsert;
 export type SelectBooking = typeof bookingsTable.$inferSelect;
+
+export type InsertAdminAuditLog = typeof adminAuditLogsTable.$inferInsert;
+export type SelectAdminAuditLog = typeof adminAuditLogsTable.$inferSelect;

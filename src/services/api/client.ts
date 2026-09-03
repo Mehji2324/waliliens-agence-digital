@@ -14,6 +14,7 @@ class ApiClient {
     try {
       const url = `${this.baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
       const response = await fetch(url, {
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -38,6 +39,7 @@ class ApiClient {
         : (json as T);
 
       return {
+        success: json?.success !== undefined ? json.success : response.ok,
         data: payload,
         status: response.status,
         message: json?.message,
@@ -62,6 +64,14 @@ class ApiClient {
   public post<T>(endpoint: string, body?: unknown, headers?: HeadersInit): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
+      body: body ? JSON.stringify(body) : undefined,
+      headers,
+    });
+  }
+
+  public patch<T>(endpoint: string, body?: unknown, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
       headers,
     });

@@ -32,6 +32,20 @@ export class ValidationError extends AppError {
   }
 }
 
+/** 401 — Authentication required or invalid session */
+export class UnauthorizedError extends AppError {
+  constructor(message = 'Authentication required.') {
+    super(message, 401, 'UNAUTHORIZED');
+  }
+}
+
+/** 403 — Forbidden action */
+export class ForbiddenError extends AppError {
+  constructor(message = 'Permission denied.') {
+    super(message, 403, 'FORBIDDEN');
+  }
+}
+
 /** 404 — Requested resource does not exist */
 export class NotFoundError extends AppError {
   constructor(message = 'Resource not found.') {

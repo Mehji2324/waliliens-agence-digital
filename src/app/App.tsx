@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import Lenis from 'lenis';
 import { router } from './routes';
 import { CursorProvider } from '../context/CursorContext';
+import { AdminAuthProvider } from '../context/AdminAuthContext';
 import { CustomCursor } from '../components/motion/CustomCursor';
 import { Preloader } from '../components/motion/Preloader';
 import { useMousePosition } from '../hooks/useMousePosition';
@@ -42,20 +43,22 @@ export const App: React.FC = () => {
   }, [prefersReducedMotion]);
 
   return (
-    <CursorProvider>
-      <div className="relative min-h-screen bg-obsidian-950 text-neutral-100 selection:bg-cyber-cyan/30 selection:text-white">
-        {/* Preloader */}
-        {!loadingComplete && (
-          <Preloader onComplete={() => setLoadingComplete(true)} />
-        )}
+    <AdminAuthProvider>
+      <CursorProvider>
+        <div className="relative min-h-screen bg-obsidian-950 text-neutral-100 selection:bg-cyber-cyan/30 selection:text-white">
+          {/* Preloader */}
+          {!loadingComplete && (
+            <Preloader onComplete={() => setLoadingComplete(true)} />
+          )}
 
-        {/* Global Spring Cursor */}
-        <CustomCursor />
+          {/* Global Spring Cursor */}
+          <CustomCursor />
 
-        {/* Router Provider */}
-        <RouterProvider router={router} />
-      </div>
-    </CursorProvider>
+          {/* Router Provider */}
+          <RouterProvider router={router} />
+        </div>
+      </CursorProvider>
+    </AdminAuthProvider>
   );
 };
 

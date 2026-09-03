@@ -3,6 +3,7 @@ import { projectsRouter } from './projects.routes';
 import { servicesRouter } from './services.routes';
 import { contactRouter } from './contact.routes';
 import { bookingRouter } from './booking.routes';
+import { adminRouter } from './admin.routes';
 import { checkDatabaseConnection } from '../db';
 import { asyncHandler } from '../utils/async-handler';
 
@@ -28,3 +29,4 @@ apiRouter.use('/projects', projectsRouter);
 apiRouter.use('/services', servicesRouter);
 apiRouter.use('/contact', contactRouter);
 apiRouter.use('/booking', bookingRouter);
+apiRouter.use('/admin', adminRouter);

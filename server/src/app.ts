@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { env, isDev } from './config/env';
 import { requestId } from './middleware/request-id';
 import { notFound } from './middleware/not-found';
@@ -17,7 +18,7 @@ app.use(
   })
 );
 
-// CORS configuration — configured with client whitelist
+// CORS configuration — configured with client whitelist and credentials enabled
 const allowedOrigins = [
   env.clientUrl,
   'http://localhost:5173',
@@ -35,7 +36,7 @@ app.use(
       return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   })
 );
@@ -43,6 +44,7 @@ app.use(
 // Request parsing
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(cookieParser());
 
 // Logging
 if (isDev) {

@@ -11,7 +11,15 @@ const ContactPage = lazy(() => import('../pages/Contact/ContactPage').then(m => 
 const BookingPage = lazy(() => import('../pages/Booking/BookingPage').then(m => ({ default: m.BookingPage })));
 const NotFoundPage = lazy(() => import('../pages/NotFound/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
+// Admin Pages (Phase 7)
+const AdminLoginPage = lazy(() => import('../pages/Admin/LoginPage').then(m => ({ default: m.AdminLoginPage })));
+const AdminDashboardPage = lazy(() => import('../pages/Admin/DashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const AdminBookingsPage = lazy(() => import('../pages/Admin/BookingsPage').then(m => ({ default: m.AdminBookingsPage })));
+const AdminBookingDetailsPage = lazy(() => import('../pages/Admin/BookingDetailsPage').then(m => ({ default: m.AdminBookingDetailsPage })));
+const AdminContactsPage = lazy(() => import('../pages/Admin/ContactsPage').then(m => ({ default: m.AdminContactsPage })));
+
 export const router = createBrowserRouter([
+  // Public Studio Website
   {
     path: '/',
     element: <SiteLayout />,
@@ -64,14 +72,58 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: '*',
-        element: (
-          <Suspense fallback={<LoadingState message="Loading Page..." className="min-h-[70vh]" />}>
-            <NotFoundPage />
-          </Suspense>
-        ),
-      },
     ],
+  },
+
+  // Admin Portal Routes (Phase 7)
+  {
+    path: '/admin/login',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Admin Terminal..." className="min-h-screen" />}>
+        <AdminLoginPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Dashboard..." className="min-h-screen" />}>
+        <AdminDashboardPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin/bookings',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Bookings Terminal..." className="min-h-screen" />}>
+        <AdminBookingsPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin/bookings/:id',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Booking Dossier..." className="min-h-screen" />}>
+        <AdminBookingDetailsPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin/contacts',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Client Briefs..." className="min-h-screen" />}>
+        <AdminContactsPage />
+      </Suspense>
+    ),
+  },
+
+  // 404 Route
+  {
+    path: '*',
+    element: (
+      <Suspense fallback={<LoadingState message="Loading Page..." className="min-h-[70vh]" />}>
+        <NotFoundPage />
+      </Suspense>
+    ),
   },
 ]);
