@@ -1,0 +1,234 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { GoogleCalendarBookingProvider } from './google-calendar.provider';
+import { bookingsRepository } from '../../repositories/bookings.repository';
+import type { calendar_v3 } from 'googleapis';
+
+describe('GoogleCalendarBookingProvider', () => {
+  let provider: GoogleCalendarBookingProvider;
+  let mockCalendar: {
+    freebusy: {
+      query: ReturnType<typeof vi.fn>;
+    };
+    events: {
+      insert: ReturnType<typeof vi.fn>;
+      delete: ReturnType<typeof vi.fn>;
+    };
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockCalendar = {
+      freebusy: {
+        query: vi.fn(),
+      },
+      events: {
+        insert: vi.fn(),
+        delete: vi.fn(),
+      },
+    };
+
+    provider = new GoogleCalendarBookingProvider(mockCalendar as unknown as calendar_v3.Calendar);
+  });
+
+  describe('Slot Generation & FreeBusy Filtering', () => {
+    it('generates 30-minute candidate slots between working hours (10:00 - 18:00)', () => {
+      const slots = provider.generateCandidateSlots('2026-10-15');
+      // 10:00 to 18:00 = 8 hours = 16 30-minute slots
+      expect(slots).toHaveLength(16);
+      expect(slots[0].startTime).toBe('10:00');
+      expect(slots[0].endTime).toBe('10:30');
+      expect(slots[15].startTime).toBe('17:30');
+      expect(slots[15].endTime).toBe('18:00');
+    });
+
+    it('filters out busy periods returned by Google Calendar FreeBusy API', async () => {
+      const targetDate = '2026-10-15';
+
+      // Mock Google FreeBusy: 13:00 to 14:00 is busy
+      mockCalendar.freebusy.query.mockResolvedValue({
+        data: {
+          calendars: {
+            primary: {
+              busy: [
+                {
+                  start: `${targetDate}T13:00:00.000Z`,
+                  end: `${targetDate}T14:00:00.000Z`,
+                },
+              ],
+            },
+          },
+        },
+      });
+
+      // Mock DB: no local bookings
+      vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([]);
+
+      const availableSlots = await provider.getAvailableSlots(targetDate);
+      expect(availableSlots).toHaveLength(16);
+
+      // Slot 7 is 13:00-13:30, Slot 8 is 13:30-14:00 -> both should be unavailable
+      const slot1300 = availableSlots.find((s) => s.id === `${targetDate}-slot-7`);
+      const slot1330 = availableSlots.find((s) => s.id === `${targetDate}-slot-8`);
+      const slot1000 = availableSlots.find((s) => s.id === `${targetDate}-slot-1`);
+
+      expect(slot1300?.available).toBe(false);
+      expect(slot1330?.available).toBe(false);
+      expect(slot1000?.available).toBe(true);
+    });
+
+    it('filters out slots already booked in local PostgreSQL database', async () => {
+      const targetDate = '2026-10-15';
+
+      mockCalendar.freebusy.query.mockResolvedValue({
+        data: {
+          calendars: {
+            primary: { busy: [] },
+          },
+        },
+      });
+
+      // Mock DB: slot-2 is already booked
+      vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([
+        {
+          id: 'b-1',
+          bookingId: 'BK_TEST123',
+          slotId: `${targetDate}-slot-2`,
+          date: targetDate,
+          startTime: '10:30',
+          endTime: '11:00',
+          durationMinutes: 30,
+          name: 'Jane Doe',
+          email: 'jane@example.com',
+          company: null,
+          projectScope: null,
+          timezone: 'UTC',
+          status: 'confirmed',
+          googleEventId: 'ge-1',
+          googleCalendarId: 'primary',
+          meetingUrl: 'https://meet.google.com/abc-defg-hij',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const availableSlots = await provider.getAvailableSlots(targetDate);
+      const slot2 = availableSlots.find((s) => s.id === `${targetDate}-slot-2`);
+      const slot1 = availableSlots.find((s) => s.id === `${targetDate}-slot-1`);
+
+      expect(slot2?.available).toBe(false);
+      expect(slot1?.available).toBe(true);
+    });
+  });
+
+  describe('Booking Creation & Google Meet Link Generation', () => {
+    it('creates Google Calendar event with authentic Meet URL and persists to DB', async () => {
+      const targetDate = '2026-10-15';
+
+      mockCalendar.freebusy.query.mockResolvedValue({
+        data: {
+          calendars: { primary: { busy: [] } },
+        },
+      });
+
+      mockCalendar.events.insert.mockResolvedValue({
+        data: {
+          id: 'google-event-xyz-789',
+          status: 'confirmed',
+          hangoutLink: 'https://meet.google.com/wal-disc-123',
+          conferenceData: {
+            entryPoints: [
+              {
+                entryPointType: 'video',
+                uri: 'https://meet.google.com/wal-disc-123',
+              },
+            ],
+          },
+        },
+      });
+
+      vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([]);
+      const createBookingSpy = vi.spyOn(bookingsRepository, 'createBooking').mockResolvedValue({
+        id: 'db-id-1',
+        bookingId: 'BK_ABC123',
+        slotId: `${targetDate}-slot-1`,
+        date: targetDate,
+        startTime: '10:00',
+        endTime: '10:30',
+        durationMinutes: 30,
+        name: 'Alex Rivera',
+        email: 'alex@waliliens.com',
+        company: 'Vortex Labs',
+        projectScope: 'Web3 Spatial interface',
+        timezone: 'Africa/Casablanca',
+        status: 'confirmed',
+        googleEventId: 'google-event-xyz-789',
+        googleCalendarId: 'primary',
+        meetingUrl: 'https://meet.google.com/wal-disc-123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const result = await provider.reserveSlot({
+        slotId: `${targetDate}-slot-1`,
+        date: targetDate,
+        time: '10:00 AM',
+        name: 'Alex Rivera',
+        email: 'alex@waliliens.com',
+        company: 'Vortex Labs',
+        projectScope: 'Web3 Spatial interface',
+        timezone: 'Africa/Casablanca',
+      });
+
+      expect(result.status).toBe('confirmed');
+      expect(result.durationMinutes).toBe(30);
+      expect(result.meetingUrl).toBe('https://meet.google.com/wal-disc-123');
+      expect(mockCalendar.events.insert).toHaveBeenCalledTimes(1);
+      expect(createBookingSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('cleans up Google Calendar event if local DB insertion fails with conflict', async () => {
+      const targetDate = '2026-10-15';
+
+      mockCalendar.freebusy.query.mockResolvedValue({
+        data: {
+          calendars: { primary: { busy: [] } },
+        },
+      });
+
+      mockCalendar.events.insert.mockResolvedValue({
+        data: {
+          id: 'orphan-event-123',
+          conferenceData: {
+            entryPoints: [{ entryPointType: 'video', uri: 'https://meet.google.com/test-url' }],
+          },
+        },
+      });
+
+      mockCalendar.events.delete.mockResolvedValue({});
+
+      vi.spyOn(bookingsRepository, 'getActiveBookingsByDate').mockResolvedValue([]);
+      vi.spyOn(bookingsRepository, 'createBooking').mockRejectedValue(new Error('Unique constraint violated'));
+
+      await expect(
+        provider.reserveSlot({
+          slotId: `${targetDate}-slot-1`,
+          date: targetDate,
+          time: '10:00 AM',
+          name: 'Alex Rivera',
+          email: 'alex@waliliens.com',
+          company: '',
+          projectScope: '',
+          timezone: 'UTC',
+        })
+      ).rejects.toThrow();
+
+      // Verifies that cleanup / deletion was attempted
+      expect(mockCalendar.events.delete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventId: 'orphan-event-123',
+        })
+      );
+    });
+  });
+});

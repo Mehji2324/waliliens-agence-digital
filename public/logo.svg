@@ -1,0 +1,56 @@
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="waliliGrad" x1="10" y1="20" x2="110" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+  </defs>
+
+  <!-- Roman Arch of Volubilis (Left) -->
+  <path
+    d="M12 96 H56 M16 96 V80 H42 V96"
+    stroke="url(#waliliGrad)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M26 80 V36 H64 M20 36 H70 M16 26 H72"
+    stroke="url(#waliliGrad)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M40 80 V58 H54 M34 58 H58"
+    stroke="url(#waliliGrad)"
+    stroke-width="5.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Alien Head Profile -->
+  <path
+    d="M42 58 C42 42 56 34 72 34 C94 34 104 50 102 68 C100 82 86 92 78 96 C72 99 66 98 64 92 L64 88"
+    stroke="url(#waliliGrad)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Slanted Alien Eye -->
+  <path
+    d="M74 54 C79 48 87 46 88 52 C89 58 81 64 76 66 C73 64 72 58 74 54 Z"
+    fill="url(#waliliGrad)"
+  />
+
+  <!-- Planetary Orbit Ring -->
+  <path
+    d="M52 74 C46 76 44 80 50 82 C64 86 98 72 108 52 C113 42 109 36 102 38 C94 40 80 48 68 58"
+    stroke="#00F0FF"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
