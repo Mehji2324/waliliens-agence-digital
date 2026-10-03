@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: waliliens-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-waliliens}
+      POSTGRES_USER: ${POSTGRES_USER:-waliliens_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-waliliens_app} -d ${POSTGRES_DB:-waliliens}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waliliens-internal
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: waliliens-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    networks:
+      - waliliens-internal
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: waliliens-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/site-config:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    networks:
+      - waliliens-internal
+
+  certbot:
+    image: certbot/certbot
+    profiles: ["certbot"]
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+
+volumes:
+  postgres_data:
+    driver: local
+  certbot_certs:
+  certbot_www:
+
+networks:
+  waliliens-internal:
+    driver: bridge
