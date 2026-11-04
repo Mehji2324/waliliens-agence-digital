@@ -10,6 +10,7 @@ import type { BookingCancellationData } from '../integrations/email/templates/bo
 import type { BookingRescheduleData } from '../integrations/email/templates/booking-reschedule';
 import { UnauthorizedError, NotFoundError, ConflictError, ValidationError } from '../utils/http-errors';
 import type { SelectBooking, SelectContactSubmission } from '../db/schema';
+import { logger } from '../utils/logger';
 
 export class AdminService {
   private calendarProvider: GoogleCalendarBookingProvider;
@@ -68,7 +69,7 @@ export class AdminService {
       ipAddress,
     });
 
-    console.log(`[ADMIN AUTH] Admin session initiated for ${env.admin.email} (IP: ${ipAddress || 'unknown'})`);
+    logger.info({ adminEmail: env.admin.email, ipAddress: ipAddress || 'unknown' }, '[ADMIN AUTH] Admin session initiated');
 
     return {
       token,
@@ -142,7 +143,7 @@ export class AdminService {
     try {
       await emailService.sendAllCancellationEmails(emailData);
     } catch (emailErr) {
-      console.error(`[ADMIN] Unexpected error dispatching cancellation email for ${booking.bookingId}:`, emailErr);
+      logger.error({ err: emailErr, bookingId: booking.bookingId }, '[ADMIN] Unexpected error dispatching cancellation email');
     }
 
     // 4. Audit Log
@@ -155,7 +156,7 @@ export class AdminService {
       ipAddress: params.ipAddress,
     });
 
-    console.log(`[ADMIN] Cancelled booking [${booking.bookingId}] for ${booking.name} (${booking.email})`);
+    logger.info({ bookingId: booking.bookingId, name: booking.name, email: booking.email }, '[ADMIN] Cancelled booking');
     return updated;
   }
 
@@ -245,7 +246,7 @@ export class AdminService {
     try {
       await emailService.sendAllRescheduleEmails(emailData);
     } catch (emailErr) {
-      console.error(`[ADMIN] Unexpected error dispatching reschedule email for ${booking.bookingId}:`, emailErr);
+      logger.error({ err: emailErr, bookingId: booking.bookingId }, '[ADMIN] Unexpected error dispatching reschedule email');
     }
 
     // 5. Audit Log
@@ -261,7 +262,7 @@ export class AdminService {
       ipAddress: params.ipAddress,
     });
 
-    console.log(`[ADMIN] Rescheduled booking [${booking.bookingId}] to ${params.newDate} at ${candidate.startTime}`);
+    logger.info({ bookingId: booking.bookingId, newDate: params.newDate, startTime: candidate.startTime }, '[ADMIN] Rescheduled booking');
     return updated;
   }
 

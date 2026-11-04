@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import type { AdminBooking } from '../../services/api/admin';
+import { useModalAccessibility } from '../../hooks/useModalAccessibility';
 
 interface CancelBookingDialogProps {
   booking: AdminBooking | null;
@@ -18,6 +19,8 @@ export const CancelBookingDialog: React.FC<CancelBookingDialogProps> = ({
   isSubmitting,
 }) => {
   const [reason, setReason] = useState('');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalAccessibility(isOpen && Boolean(booking), dialogRef, onClose);
 
   if (!isOpen || !booking) return null;
 
@@ -29,9 +32,10 @@ export const CancelBookingDialog: React.FC<CancelBookingDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian-950/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-md rounded-3xl border border-rose-500/30 bg-obsidian-900 p-6 sm:p-8 shadow-2xl shadow-rose-950/40">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="cancel-booking-title" tabIndex={-1} className="relative w-full max-w-md rounded-3xl border border-rose-500/30 bg-obsidian-900 p-6 sm:p-8 shadow-2xl shadow-rose-950/40">
         <button
           onClick={onClose}
+          aria-label="Close cancellation dialog"
           className="absolute top-5 right-5 text-neutral-400 hover:text-white transition-colors"
         >
           <X className="h-5 w-5" />
@@ -42,7 +46,7 @@ export const CancelBookingDialog: React.FC<CancelBookingDialogProps> = ({
             <AlertTriangle className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-display text-lg font-bold text-white">Cancel Discovery Call</h3>
+            <h3 id="cancel-booking-title" className="font-display text-lg font-bold text-white">Cancel Discovery Call</h3>
             <p className="font-mono text-xs text-neutral-400">ID: {booking.bookingId}</p>
           </div>
         </div>
@@ -61,10 +65,11 @@ export const CancelBookingDialog: React.FC<CancelBookingDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block font-mono text-xs text-neutral-300 mb-1.5">
+            <label htmlFor="cancel-reason" className="block font-mono text-xs text-neutral-300 mb-1.5">
               Cancellation Reason / Internal Note (Optional)
             </label>
             <textarea
+              id="cancel-reason"
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}

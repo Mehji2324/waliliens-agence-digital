@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowUpRight, Calendar } from 'lucide-react';
 import { MagneticButton } from '../motion/MagneticButton';
 import { SoundToggle } from '../ui/SoundToggle';
@@ -12,6 +11,8 @@ import { MAIN_NAV_ITEMS } from '../../data/navigation';
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { setCursorType, resetCursor } = useCursor();
   const location = useLocation();
 
@@ -23,19 +24,55 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const menuButton = menuButtonRef.current;
+    mobileMenuRef.current?.querySelector<HTMLElement>('a[href]')?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab' || !mobileMenuRef.current) return;
+      const items = Array.from(
+        mobileMenuRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      );
+      if (items.length === 0) return;
+      if (event.shiftKey && document.activeElement === items[0]) {
+        event.preventDefault();
+        items[items.length - 1].focus();
+      } else if (!event.shiftKey && document.activeElement === items[items.length - 1]) {
+        event.preventDefault();
+        items[0].focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      menuButton?.focus();
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const closeOnHistoryNavigation = () => setMobileMenuOpen(false);
+    window.addEventListener('popstate', closeOnHistoryNavigation);
+    return () => window.removeEventListener('popstate', closeOnHistoryNavigation);
+  }, []);
+
   return (
     <>
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled ? 'py-2.5' : 'py-5'
         }`}
       >
         <div className="mx-auto max-w-7xl px-6 sm:px-12">
           <nav
-            aria-label="Main Navigation"
+            aria-label="Primary"
             className={`flex items-center justify-between rounded-full px-5 transition-all duration-300 ${
               isScrolled
                 ? 'border border-white/10 bg-obsidian-900/85 py-2 shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl'
@@ -60,6 +97,7 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={item.name}
                     to={item.path}
+                    aria-current={isActive ? 'page' : undefined}
                     onMouseEnter={() => {
                       setCursorType('hover');
                       soundManager.playHover();
@@ -90,7 +128,9 @@ export const Navbar: React.FC = () => {
                 <span>BOOK A CALL</span>
               </Link>
 
-              <SoundToggle />
+              <div className="max-[767px]:hidden">
+                <SoundToggle />
+              </div>
 
               <MagneticButton
                 href="/contact"
@@ -105,14 +145,18 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile Menu Button */}
             <div className="flex items-center gap-2 md:hidden">
-              <SoundToggle />
+              <div className="max-[767px]:hidden">
+                <SoundToggle />
+              </div>
               <button
+                ref={menuButtonRef}
                 onClick={() => {
                   soundManager.playClick();
                   setMobileMenuOpen(!mobileMenuOpen);
                 }}
                 aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
                 aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-navigation"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-obsidian-900/80 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyber-cyan"
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -120,17 +164,17 @@ export const Navbar: React.FC = () => {
             </div>
           </nav>
         </div>
-      </motion.header>
+      </header>
 
       {/* Full-Screen Mobile Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-40 flex flex-col justify-between bg-obsidian-950/98 px-6 pt-28 pb-10 backdrop-blur-2xl md:hidden"
+      <div
+            ref={mobileMenuRef}
+            id="mobile-navigation"
+            role="dialog"
+            aria-modal={mobileMenuOpen ? true : undefined}
+            aria-hidden={!mobileMenuOpen}
+            aria-label="Mobile navigation"
+            className={`${mobileMenuOpen ? 'flex' : 'hidden'} fixed inset-0 z-40 flex-col justify-between bg-obsidian-950/98 px-6 pt-28 pb-10 backdrop-blur-2xl md:hidden motion-safe:animate-fade-in`}
           >
             <div className="space-y-6">
               <div className="font-mono text-xs text-cyber-cyan">
@@ -143,28 +187,25 @@ export const Navbar: React.FC = () => {
                     soundManager.playClick();
                     setMobileMenuOpen(false);
                   }}
+                  aria-current={location.pathname === '/' ? 'page' : undefined}
                   className="font-display text-2xl font-bold text-white transition-colors hover:text-cyber-cyan"
                 >
                   Home
                 </Link>
-                {MAIN_NAV_ITEMS.map((item, idx) => (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                  >
+                {MAIN_NAV_ITEMS.map((item) => (
+                  <div key={item.name}>
                     <Link
                       to={item.path}
                       onClick={() => {
                         soundManager.playClick();
                         setMobileMenuOpen(false);
                       }}
+                      aria-current={location.pathname === item.path ? 'page' : undefined}
                       className="font-display text-2xl font-bold text-white transition-colors hover:text-cyber-cyan"
                     >
                       {item.name}
                     </Link>
-                  </motion.div>
+                  </div>
                 ))}
                 <Link
                   to="/book"
@@ -193,9 +234,7 @@ export const Navbar: React.FC = () => {
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
     </>
   );
 };

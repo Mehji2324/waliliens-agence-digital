@@ -10,6 +10,7 @@ export const AdminDashboardPage: React.FC = () => {
   useSeo({
     title: 'Operations Dashboard',
     description: 'Waliliens Studio Operations & Management Terminal.',
+    robots: 'noindex, nofollow',
   });
 
   const [data, setData] = useState<DashboardData | null>(null);

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { m, useSpring } from 'framer-motion';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useCursor } from '../../context/CursorContext';
 import { soundManager } from '../../utils/sound';
@@ -74,9 +74,18 @@ export const TiltCard: React.FC<TiltCardProps> = ({
       style={{ perspective: 1200 }}
       className="h-full w-full"
     >
-      <motion.div
+      <m.div
         ref={cardRef}
         onClick={onClick}
+        onKeyDown={(event) => {
+          if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            onClick();
+          }
+        }}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        aria-haspopup={onClick ? 'dialog' : undefined}
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -103,7 +112,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({
         <div className="relative z-10 h-full w-full transform-gpu">
           {children}
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 };

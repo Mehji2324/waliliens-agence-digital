@@ -137,9 +137,14 @@ export const ContactPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form
+                onSubmit={handleSubmit}
+                aria-describedby={status === 'error' ? 'contact-page-form-error' : undefined}
+                className="space-y-6"
+              >
                 {status === 'error' && (
                   <FormMessage
+                    id="contact-page-form-error"
                     type="error"
                     title="Submission Notice"
                     message={errorMessage || 'An error occurred. Please try again or email us directly.'}
@@ -148,16 +153,17 @@ export const ContactPage: React.FC = () => {
 
                 {/* Services Selection */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400">
+                  <p id="contact-services-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400">
                     01 // What services do you need?
-                  </label>
-                  <div className="mt-2.5 flex flex-wrap gap-2">
+                  </p>
+                  <div role="group" aria-labelledby="contact-services-label" className="mt-2.5 flex flex-wrap gap-2">
                     {availableServices.map((service) => {
                       const selected = formData.services.includes(service);
                       return (
                         <button
                           key={service}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() => handleToggleService(service)}
                           onMouseEnter={() => setCursorType('hover')}
                           onMouseLeave={resetCursor}
@@ -176,14 +182,15 @@ export const ContactPage: React.FC = () => {
 
                 {/* Budget Tiers */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400">
+                  <p id="contact-budget-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400">
                     02 // Estimated project budget
-                  </label>
-                  <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                  </p>
+                  <div role="group" aria-labelledby="contact-budget-label" className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                     {budgetTiers.map((tier) => (
                       <button
                         key={tier}
                         type="button"
+                        aria-pressed={formData.budget === tier}
                         onClick={() => {
                           soundManager.playClick();
                           setFormData({ ...formData, budget: tier });
@@ -233,6 +240,19 @@ export const ContactPage: React.FC = () => {
                   />
                 </FormField>
 
+                <div className="flex items-start gap-3 text-sm text-neutral-300">
+                  <input
+                    id="contact-privacy-consent"
+                    name="privacyConsent"
+                    type="checkbox"
+                    required
+                    className="mt-1 h-4 w-4 accent-cyber-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+                  />
+                  <label htmlFor="contact-privacy-consent" className="leading-relaxed">
+                    I agree to be contacted regarding this inquiry.
+                  </label>
+                </div>
+
                 <div className="flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-white/10 pt-4">
                   <div className="flex items-center gap-2 font-mono text-xs text-neutral-400">
                     <Clock className="h-3.5 w-3.5 text-cyber-emerald" />
@@ -253,11 +273,11 @@ export const ContactPage: React.FC = () => {
               <h3 className="font-display text-lg font-bold text-white">Direct Communication</h3>
               <div className="space-y-3 font-mono text-xs">
                 <a
-                  href="mailto:hello@waliliens.com"
+                  href="mailto:waliliens.ai@gmail.com"
                   className="flex items-center gap-2.5 text-neutral-300 hover:text-cyber-cyan transition-colors"
                 >
                   <Mail className="h-4 w-4 text-cyber-cyan shrink-0" />
-                  <span>hello@waliliens.com</span>
+                  <span>waliliens.ai@gmail.com</span>
                 </a>
                 <div className="flex items-center gap-2.5 text-neutral-400">
                   <Shield className="h-4 w-4 text-cyber-emerald shrink-0" />

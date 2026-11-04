@@ -3,13 +3,29 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import { env, isDev } from './config/env';
+import * as Sentry from '@sentry/node';
+import { env, isDev, isProd } from './config/env';
 import { requestId } from './middleware/request-id';
 import { notFound } from './middleware/not-found';
 import { errorHandler } from './middleware/error-handler';
 import { apiRouter } from './routes';
 
 export const app = express();
+
+// Initialize Sentry if DSN is configured
+if (env.sentry.enabled) {
+  Sentry.init({
+    dsn: env.sentry.dsn,
+    environment: env.nodeEnv,
+    tracesSampleRate: isProd ? 0.2 : 1.0,
+  });
+}
+
+// Trust the first proxy hop (Nginx) so rate limiting uses the real client IP.
+// Controlled by TRUST_PROXY=true env var; defaults to false.
+if (env.trustProxy) {
+  app.set('trust proxy', 1);
+}
 
 // Security HTTP headers
 app.use(

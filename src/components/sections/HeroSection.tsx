@@ -1,16 +1,26 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { lazy, Suspense } from 'react';
+import { m } from 'framer-motion';
 import { ArrowUpRight, Sparkles, CheckCircle2 } from 'lucide-react';
-import { HeroCanvas } from '../motion/HeroCanvas';
 import { MagneticButton } from '../motion/MagneticButton';
 import { TextReveal } from '../motion/TextReveal';
 import { MOTION_TOKENS } from '../../utils/motion';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+
+const HeroCanvas = lazy(() =>
+  import('../motion/HeroCanvas').then((module) => ({ default: module.HeroCanvas })),
+);
 
 export const HeroSection: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-obsidian-950 px-6 pt-32 pb-14 sm:px-12 lg:px-24">
       {/* Interactive 60fps Kinetic Canvas Background */}
-      <HeroCanvas />
+      {!prefersReducedMotion && (
+        <Suspense fallback={null}>
+          <HeroCanvas />
+        </Suspense>
+      )}
 
       {/* Ambient Lighting Cones */}
       <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[750px] rounded-full bg-gradient-to-tr from-cyber-violet/20 via-cyber-cyan/10 to-transparent blur-[130px]" />
@@ -18,7 +28,7 @@ export const HeroSection: React.FC = () => {
       {/* Main Hero Content */}
       <div className="relative z-10 mx-auto w-full max-w-5xl">
         {/* Studio Badge */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={MOTION_TOKENS.medium}
@@ -31,7 +41,7 @@ export const HeroSection: React.FC = () => {
           <span className="rounded-full bg-cyber-violet/20 px-2 py-0.5 font-mono text-[10px] text-cyber-violet font-semibold">
             AVAILABLE FOR Q3/Q4
           </span>
-        </motion.div>
+        </m.div>
 
         {/* Hero Headline with Masked Word Stagger */}
         <div className="mt-7">
@@ -45,18 +55,18 @@ export const HeroSection: React.FC = () => {
             <TextReveal text="POWERED BY MOTION & AI." delay={0.45} type="words" />
           </h1>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...MOTION_TOKENS.slow, delay: 0.6 }}
             className="mt-6 max-w-2xl text-base font-sans leading-relaxed text-neutral-300 sm:text-lg lg:text-xl"
           >
             We partner with visionary startups and established brands to build award-winning websites, bespoke web applications, and immersive 3D interfaces designed to turn traffic into revenue.
-          </motion.p>
+          </m.p>
         </div>
 
         {/* Clear CTA Hierarchy */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...MOTION_TOKENS.slow, delay: 0.75 }}
@@ -81,11 +91,11 @@ export const HeroSection: React.FC = () => {
             <span>VIEW SELECTED WORK</span>
             <Sparkles className="h-4 w-4 text-cyber-cyan" />
           </MagneticButton>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Hero Bottom Trust Metrics */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ ...MOTION_TOKENS.slow, delay: 0.9 }}
@@ -109,7 +119,7 @@ export const HeroSection: React.FC = () => {
             <span>Dedicated Senior Team</span>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 };

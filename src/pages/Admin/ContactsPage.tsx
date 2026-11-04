@@ -9,6 +9,7 @@ export const AdminContactsPage: React.FC = () => {
   useSeo({
     title: 'Client Briefs & Inquiries',
     description: 'Waliliens Studio Operations & Management Terminal.',
+    robots: 'noindex, nofollow',
   });
 
   const [contactsData, setContactsData] = useState<PaginatedResponse<AdminContactSubmission> | null>(null);
@@ -107,6 +108,7 @@ export const AdminContactsPage: React.FC = () => {
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-neutral-500" />
             <input
+              aria-label="Search contact submissions"
               type="text"
               value={search}
               onChange={(e) => {
@@ -119,6 +121,7 @@ export const AdminContactsPage: React.FC = () => {
           </div>
 
           <select
+            aria-label="Filter contact submissions by status"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);

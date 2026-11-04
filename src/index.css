@@ -25,6 +25,55 @@
   --mouse-y: 50%;
 }
 
+:focus-visible {
+  outline: 2px solid #00f0ff;
+  outline-offset: 3px;
+}
+
+.text-neutral-500,
+.text-neutral-600,
+.placeholder-neutral-600::placeholder {
+  color: #a3a3a3;
+}
+
+.text-cyber-violet {
+  color: #a78bfa;
+}
+
+.skip-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100000;
+  transform: translateY(-200%);
+  border-radius: 0.5rem;
+  background: #00f0ff;
+  padding: 0.75rem 1rem;
+  color: #040406;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (any-pointer: coarse) {
+  .sound-toggle {
+    display: none;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

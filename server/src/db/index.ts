@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
 import { env, isProd } from '../config/env';
+import { logger } from '../utils/logger';
 
 let pool: Pool | null = null;
 
@@ -16,7 +17,7 @@ export function getPool(): Pool {
     });
 
     pool.on('error', (err) => {
-      console.error('[Database Pool Error]:', err.message);
+      logger.error({ err }, '[Database Pool Error]');
     });
   }
   return pool;

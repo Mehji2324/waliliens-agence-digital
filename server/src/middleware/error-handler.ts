@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/node';
 import { AppError } from '../utils/http-errors';
-import { isDev } from '../config/env';
+import { env, isDev } from '../config/env';
+import { logger } from '../utils/logger';
 
 export function errorHandler(
   err: Error | AppError,
@@ -63,7 +65,19 @@ export function errorHandler(
   }
 
   // Unexpected Internal Errors
-  console.error(`[Unhandled Error] [${reqId || 'no-id'}]`, err);
+  logger.error(
+    {
+      err,
+      requestId: reqId,
+      path: req.path,
+      method: req.method,
+    },
+    `[Unhandled Error] [${reqId || 'no-id'}]: ${err.message}`
+  );
+
+  if (env.sentry.enabled) {
+    Sentry.captureException(err);
+  }
 
   res.status(500).json({
     success: false,

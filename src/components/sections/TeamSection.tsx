@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { TEAM_MEMBERS } from '../../data/team';
 import { TiltCard } from '../motion/TiltCard';
 import { Users2, Sparkles, Terminal, Cpu } from 'lucide-react';
@@ -65,7 +65,7 @@ export const TeamSection: React.FC = () => {
             const Icon = isCEO ? Sparkles : idx === 1 ? Cpu : Terminal;
 
             return (
-              <motion.div
+              <m.div
                 key={member.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -179,7 +179,7 @@ export const TeamSection: React.FC = () => {
                     </div>
                   </div>
                 </TiltCard>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>

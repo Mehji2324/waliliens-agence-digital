@@ -13,6 +13,7 @@ export const AdminLoginPage: React.FC = () => {
   useSeo({
     title: 'Admin Terminal Login',
     description: 'Waliliens Studio Operations & Management Terminal.',
+    robots: 'noindex, nofollow',
   });
 
   const { login, isAuthenticated, isLoading } = useAdminAuth();
@@ -47,7 +48,7 @@ export const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-obsidian-950 px-4 py-12 relative overflow-hidden">
+    <main id="main-content" tabIndex={-1} className="flex min-h-screen items-center justify-center bg-obsidian-950 px-4 py-12 relative overflow-hidden">
       {/* Subtle background glow */}
       <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-cyber-cyan/10 blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-cyber-violet/10 blur-[120px] pointer-events-none" />
@@ -113,6 +114,6 @@ export const AdminLoginPage: React.FC = () => {
           Protected with HTTP-only tokens & server-side authorization.
         </div>
       </div>
-    </div>
+    </main>
   );
 };

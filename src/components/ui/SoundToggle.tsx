@@ -18,7 +18,8 @@ export const SoundToggle: React.FC = () => {
       onMouseEnter={() => setCursorType('hover')}
       onMouseLeave={resetCursor}
       aria-label={isMuted ? 'Enable sound effects' : 'Disable sound effects'}
-      className="relative flex items-center gap-2 rounded-full border border-white/10 bg-obsidian-900/80 px-3 py-1.5 backdrop-blur-md transition-all duration-300 hover:border-white/30 hover:bg-white/10"
+      aria-pressed={!isMuted}
+      className="sound-toggle relative flex items-center gap-2 rounded-full border border-white/10 bg-obsidian-900/80 px-3 py-1.5 backdrop-blur-md transition-all duration-300 hover:border-white/30 hover:bg-white/10"
     >
       {isMuted ? (
         <VolumeX className="h-3.5 w-3.5 text-neutral-400" />

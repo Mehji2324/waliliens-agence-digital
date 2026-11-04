@@ -12,6 +12,7 @@ export const AdminBookingsPage: React.FC = () => {
   useSeo({
     title: 'Bookings Management',
     description: 'Waliliens Studio Operations & Management Terminal.',
+    robots: 'noindex, nofollow',
   });
 
   const [bookingsData, setBookingsData] = useState<PaginatedResponse<AdminBooking> | null>(null);
@@ -111,6 +112,7 @@ export const AdminBookingsPage: React.FC = () => {
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-neutral-500" />
             <input
+              aria-label="Search bookings"
               type="text"
               value={search}
               onChange={(e) => {
@@ -124,6 +126,7 @@ export const AdminBookingsPage: React.FC = () => {
 
           {/* Status Filter */}
           <select
+            aria-label="Filter bookings by status"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -140,6 +143,7 @@ export const AdminBookingsPage: React.FC = () => {
           {/* Date Filter */}
           <input
             type="date"
+            aria-label="Filter bookings by date"
             value={date}
             onChange={(e) => {
               setDate(e.target.value);

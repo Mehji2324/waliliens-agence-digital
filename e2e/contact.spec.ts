@@ -26,7 +26,7 @@ test.describe('Contact Form E2E', () => {
     await page.locator('input[placeholder*="Alex Mercer"]').fill('Neo Anderson');
     await page.locator('input[placeholder*="alex@company.com"]').fill('neo@matrix.io');
     await page.locator('textarea[placeholder*="Briefly describe"]').fill('We need to deploy full-stack autonomous AI architecture.');
-    await page.getByRole('checkbox', { name: /privacy policy/i }).check();
+    await page.getByRole('checkbox', { name: /be contacted/i }).check();
 
     // Submit the form
     await page.getByRole('button', { name: /DISPATCH PROPOSAL BRIEF/i }).click();

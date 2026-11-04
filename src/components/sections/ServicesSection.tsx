@@ -1,10 +1,11 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { SERVICES } from '../../data/services';
+import { m } from 'framer-motion';
 import { TiltCard } from '../motion/TiltCard';
 import { Cpu, Layers, Activity, Zap, ArrowRight, UserCheck, AlertCircle } from 'lucide-react';
+import { useServices } from '../../hooks/useCatalogData';
 
 export const ServicesSection: React.FC = () => {
+  const { items: services, isLoading, error } = useServices();
   const iconMap: Record<string, React.ReactNode> = {
     Zap: <Zap className="h-5 w-5 text-cyber-cyan" />,
     Layers: <Layers className="h-5 w-5 text-cyber-violet" />,
@@ -34,10 +35,15 @@ export const ServicesSection: React.FC = () => {
           </p>
         </div>
 
+        {isLoading && <p className="mt-10 text-sm text-neutral-400" role="status">Loading services…</p>}
+        {error && <p className="mt-10 text-sm text-rose-300" role="alert">{error}</p>}
+        {!isLoading && !error && services.length === 0 && (
+          <p className="mt-10 text-sm text-neutral-400">No services are currently published.</p>
+        )}
         {/* 2x2 Services Grid */}
         <div className="mt-14 grid grid-cols-1 gap-7 md:grid-cols-2">
-          {SERVICES.map((service, idx) => (
-            <motion.div
+          {services.map((service, idx) => (
+            <m.div
               key={service.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -127,7 +133,7 @@ export const ServicesSection: React.FC = () => {
                   </a>
                 </div>
               </TiltCard>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

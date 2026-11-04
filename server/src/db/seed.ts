@@ -1,7 +1,7 @@
 import { projectsRepository } from '../repositories/projects.repository';
 import { servicesRepository } from '../repositories/services.repository';
-import { PROJECTS_DATA } from '../services/projects.service';
-import { SERVICES_DATA } from '../services/services.service';
+import { PROJECTS_DATA } from './projects.seed-data';
+import { SERVICES_DATA } from './services.seed-data';
 import { checkDatabaseConnection, getPool } from './index';
 
 async function seed() {

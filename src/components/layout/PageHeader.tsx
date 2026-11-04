@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { TextReveal } from '../motion/TextReveal';
 import { PageContainer } from './PageContainer';
 import { Badge } from '../ui/Badge';
@@ -26,13 +26,13 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[350px] w-[600px] rounded-full bg-cyber-violet/15 blur-[120px]" />
 
       <PageContainer className="relative z-10">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={MOTION_TOKENS.medium}
         >
           <Badge variant="cyan">{badge}</Badge>
-        </motion.div>
+        </m.div>
 
         <div className="mt-5">
           <h1 className="font-display text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
@@ -47,14 +47,14 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             )}
           </h1>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...MOTION_TOKENS.slow, delay: 0.4 }}
             className="mt-5 max-w-2xl text-base text-neutral-300 sm:text-lg lg:text-xl"
           >
             {description}
-          </motion.p>
+          </m.p>
         </div>
 
         {children && <div className="mt-8">{children}</div>}

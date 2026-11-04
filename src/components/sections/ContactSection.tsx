@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Send, CheckCircle2, Terminal, Clock } from 'lucide-react';
 import { MagneticButton } from '../motion/MagneticButton';
@@ -92,7 +92,7 @@ export const ContactSection: React.FC = () => {
         <div className="mt-14 rounded-3xl border border-white/15 bg-obsidian-900/90 p-7 shadow-[0_20px_70px_rgba(0,0,0,0.8)] backdrop-blur-2xl sm:p-11">
           <AnimatePresence mode="wait">
             {isSubmitted ? (
-              <motion.div
+              <m.div
                 key="success"
                 initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -116,9 +116,9 @@ export const ContactSection: React.FC = () => {
                 >
                   SUBMIT ANOTHER INQUIRY
                 </button>
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.form
+              <m.form
                 key="form"
                 onSubmit={handleSubmit}
                 initial={{ opacity: 0 }}
@@ -127,16 +127,17 @@ export const ContactSection: React.FC = () => {
               >
                 {/* 1. Services Selection */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400">
+                  <p id="home-contact-services-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400">
                     01 // What services do you need?
-                  </label>
-                  <div className="mt-3 flex flex-wrap gap-2.5">
+                  </p>
+                  <div role="group" aria-labelledby="home-contact-services-label" className="mt-3 flex flex-wrap gap-2.5">
                     {availableServices.map((service) => {
                       const selected = formData.services.includes(service);
                       return (
                         <button
                           key={service}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() => handleToggleService(service)}
                           onMouseEnter={() => setCursorType('hover')}
                           onMouseLeave={resetCursor}
@@ -155,14 +156,15 @@ export const ContactSection: React.FC = () => {
 
                 {/* 2. Budget Tiers */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400">
+                  <p id="home-contact-budget-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400">
                     02 // Estimated project budget
-                  </label>
-                  <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                  </p>
+                  <div role="group" aria-labelledby="home-contact-budget-label" className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                     {budgetTiers.map((tier) => (
                       <button
                         key={tier}
                         type="button"
+                        aria-pressed={formData.budget === tier}
                         onClick={() => {
                           soundManager.playClick();
                           setFormData({ ...formData, budget: tier });
@@ -244,7 +246,7 @@ export const ContactSection: React.FC = () => {
                     <Send className="h-3.5 w-3.5" />
                   </MagneticButton>
                 </div>
-              </motion.form>
+              </m.form>
             )}
           </AnimatePresence>
         </div>

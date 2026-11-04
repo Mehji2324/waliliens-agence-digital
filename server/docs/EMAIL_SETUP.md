@@ -26,7 +26,9 @@ This guide walks through configuring transactional email confirmations and inter
 1. In the Resend Dashboard, navigate to **Domains**.
 2. Click **Add Domain** and enter your custom domain (e.g. `waliliens.com`).
 3. Add the provided DNS records (DKIM, SPF, MX) to your domain registrar (e.g., Cloudflare, Namecheap).
-4. Once verified, you can send from addresses such as `hello@waliliens.com` or `bookings@waliliens.com`.
+4. Once verified, you can send from addresses on that domain (e.g. `hello@yourdomain.com` or `bookings@yourdomain.com`).
+
+> **Using a Gmail address:** Resend cannot send *from* a `gmail.com` address (the domain belongs to Google and cannot be verified). The platform's contact address `waliliens.ai@gmail.com` is therefore used as the notification **recipient** and `reply-to`. To send from it, verify a custom domain in Resend and keep `BOOKING_NOTIFICATION_EMAIL=waliliens.ai@gmail.com` so booking alerts arrive in that inbox.
 
 > **Testing without a domain:** During initial sandbox testing, you can use Resend's default onboarding address `onboarding@resend.dev` to send test emails to your registered account email.
 
@@ -40,8 +42,8 @@ Update `server/.env` with your email settings:
 # Email Notifications (Phase 6 - Resend)
 EMAIL_ENABLED=true
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-EMAIL_FROM=Waliliens Studio <hello@waliliens.com>
-BOOKING_NOTIFICATION_EMAIL=team@waliliens.com
+EMAIL_FROM=Waliliens Studio <waliliens.ai@gmail.com>
+BOOKING_NOTIFICATION_EMAIL=waliliens.ai@gmail.com
 ```
 
 ### Environment Variable Reference

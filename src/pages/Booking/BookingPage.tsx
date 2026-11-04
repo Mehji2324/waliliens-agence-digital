@@ -53,7 +53,7 @@ export const BookingPage: React.FC = () => {
     } else if (label === 'Next Week') {
       d.setDate(d.getDate() + 7);
     }
-    return d.toISOString().split('T')[0];
+    return new Intl.DateTimeFormat('en-CA').format(d);
   };
 
   useEffect(() => {
@@ -215,9 +215,14 @@ export const BookingPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleBook} className="space-y-6">
+              <form
+                onSubmit={handleBook}
+                aria-describedby={status === 'error' ? 'booking-form-error' : undefined}
+                className="space-y-6"
+              >
                 {status === 'error' && (
                   <FormMessage
+                    id="booking-form-error"
                     type="error"
                     title="Booking Notice"
                     message={errorMessage || 'Selected slot is no longer available. Please select another time.'}
@@ -226,14 +231,15 @@ export const BookingPage: React.FC = () => {
 
                 {/* 1. Date Selection */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400 mb-2">
+                  <p id="booking-date-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400 mb-2">
                     01 // Select Date Window
-                  </label>
-                  <div className="flex flex-wrap gap-2">
+                  </p>
+                  <div role="group" aria-labelledby="booking-date-label" className="flex flex-wrap gap-2">
                     {dateOptions.map((date) => (
                       <button
                         key={date}
                         type="button"
+                        aria-pressed={selectedDate === date}
                         onClick={() => {
                           soundManager.playClick();
                           setSelectedDate(date);
@@ -254,9 +260,9 @@ export const BookingPage: React.FC = () => {
 
                 {/* 2. Slot Selection */}
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-wider text-neutral-400 mb-2">
+                  <p id="booking-slots-label" className="font-mono text-xs uppercase tracking-wider text-neutral-400 mb-2">
                     02 // Available 30-Min Time Slots
-                  </label>
+                  </p>
                   {isLoadingSlots ? (
                     <div className="py-4 font-mono text-xs text-neutral-400 animate-pulse">
                       Checking real-time calendar availability...
@@ -266,12 +272,13 @@ export const BookingPage: React.FC = () => {
                       No available slots found for this date. Please select another date.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <div role="group" aria-labelledby="booking-slots-label" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {slots.map((slot) => (
                         <button
                           key={slot.id}
                           type="button"
                           disabled={!slot.available}
+                          aria-pressed={selectedSlot === slot.id}
                           onClick={() => {
                             soundManager.playClick();
                             setSelectedSlot(slot.id);
@@ -323,6 +330,19 @@ export const BookingPage: React.FC = () => {
                     placeholder="Briefly mention what you'd like to build or discuss on the call..."
                   />
                 </FormField>
+
+                <div className="flex items-start gap-3 text-sm text-neutral-300">
+                  <input
+                    id="booking-privacy-consent"
+                    name="privacyConsent"
+                    type="checkbox"
+                    required
+                    className="mt-1 h-4 w-4 accent-cyber-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+                  />
+                  <label htmlFor="booking-privacy-consent" className="leading-relaxed">
+                    I agree to be contacted about this booking and receive the calendar invitation.
+                  </label>
+                </div>
 
                 <div className="flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-white/10 pt-4">
                   <div className="flex items-center gap-2 font-mono text-xs text-neutral-400">

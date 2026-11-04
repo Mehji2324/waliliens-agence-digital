@@ -9,17 +9,37 @@ import { asyncHandler } from '../utils/async-handler';
 
 export const apiRouter = Router();
 
-// Health check endpoint with database availability check
+// ─── Liveness Probe ─────────────────────────────────────────────────────────
+// Confirms the process is alive. Lightweight — no external dependencies checked.
+apiRouter.get('/health', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'waliliens-api',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── Readiness Probe ─────────────────────────────────────────────────────────
+// Confirms critical dependencies are connected and ready to serve traffic.
 apiRouter.get(
-  '/health',
+  '/health/ready',
   asyncHandler(async (_req, res) => {
     const dbStatus = await checkDatabaseConnection();
 
-    res.status(200).json({
-      success: true,
-      message: 'Waliliens API is running',
-      database: dbStatus.connected ? 'connected' : 'disconnected',
-      ...(dbStatus.latencyMs !== undefined ? { latencyMs: dbStatus.latencyMs } : {}),
+    const isReady = dbStatus.connected;
+    const statusCode = isReady ? 200 : 503;
+
+    res.status(statusCode).json({
+      status: isReady ? 'ready' : 'not_ready',
+      service: 'waliliens-api',
+      timestamp: new Date().toISOString(),
+      checks: {
+        database: {
+          status: dbStatus.connected ? 'connected' : 'disconnected',
+          ...(dbStatus.latencyMs !== undefined ? { latencyMs: dbStatus.latencyMs } : {}),
+          ...(dbStatus.error ? { error: dbStatus.error } : {}),
+        },
+      },
     });
   })
 );
@@ -30,3 +50,4 @@ apiRouter.use('/services', servicesRouter);
 apiRouter.use('/contact', contactRouter);
 apiRouter.use('/booking', bookingRouter);
 apiRouter.use('/admin', adminRouter);
+

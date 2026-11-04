@@ -4,15 +4,26 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    // Endpoints in this app already carry '/api/...' as their prefix.
+    // - Default (empty string): relative requests go to /api/... on the same origin.
+    //   Works both with the Vite proxy in dev and behind Nginx in production.
+    // - Absolute VITE_API_URL (e.g. "https://api.example.com"): the explicit
+    //   origin is used; the /api prefix in the endpoint path is preserved so
+    //   the full URL becomes "https://api.example.com/api/...".
+    this.baseUrl = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace(/\/$/, '')
+      : '';
   }
+
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const url = `${this.baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+      const base = this.baseUrl; // '' or 'https://api.example.com'
+      // endpoint always starts with '/api/...' — concatenate directly
+      const url = `${base}${endpoint}`;
       const response = await fetch(url, {
         credentials: 'include',
         headers: {

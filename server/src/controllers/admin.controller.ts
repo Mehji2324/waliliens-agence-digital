@@ -37,11 +37,11 @@ export class AdminController {
       const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
       const result = await adminService.login(parsed.data.email, parsed.data.password, clientIp);
 
-      // Set secure HTTP-only session cookie
+      // Set secure HTTP-only session cookie (token is NOT returned in the body)
       res.cookie(env.admin.cookieName, result.token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: 'lax',
+        sameSite: 'strict',
         maxAge: result.expiresInHours * 60 * 60 * 1000,
         path: '/',
       });
@@ -50,7 +50,6 @@ export class AdminController {
         success: true,
         data: {
           email: result.email,
-          token: result.token,
           expiresInHours: result.expiresInHours,
         },
         message: 'Admin authentication successful.',
@@ -64,7 +63,7 @@ export class AdminController {
     res.clearCookie(env.admin.cookieName, {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'lax',
+      sameSite: 'strict',
       path: '/',
     });
 

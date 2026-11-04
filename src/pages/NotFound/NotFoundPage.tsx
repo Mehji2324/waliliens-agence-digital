@@ -9,6 +9,7 @@ export const NotFoundPage: React.FC = () => {
   useSeo({
     title: '404 - Page Not Found',
     description: 'The requested route does not exist within the Waliliens digital matrix.',
+    robots: 'noindex, nofollow',
   });
 
   return (

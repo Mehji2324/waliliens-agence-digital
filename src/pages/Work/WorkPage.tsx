@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Section } from '../../components/layout/Section';
 import { TiltCard } from '../../components/motion/TiltCard';
 import { ProjectModal } from '../../components/ui/ProjectModal';
-import { PROJECTS } from '../../data/projects';
 import type { Project } from '../../types';
 import { useSeo } from '../../hooks/useSeo';
 import { ArrowUpRight, Award } from 'lucide-react';
 import { MagneticButton } from '../../components/motion/MagneticButton';
 import { soundManager } from '../../utils/sound';
+import { getProjectImage } from '../../utils/projectImage';
 import { useCursor } from '../../context/CursorContext';
+import { useProjects } from '../../hooks/useCatalogData';
 
 export const WorkPage: React.FC = () => {
   useSeo({
@@ -20,6 +21,7 @@ export const WorkPage: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { items: projects, isLoading, error } = useProjects();
   const { setCursorType, resetCursor } = useCursor();
 
   const categories = [
@@ -32,8 +34,8 @@ export const WorkPage: React.FC = () => {
 
   const filteredProjects =
     selectedCategory === 'ALL'
-      ? PROJECTS
-      : PROJECTS.filter((p) => p.category === selectedCategory);
+      ? projects
+      : projects.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="bg-obsidian-950">
@@ -45,6 +47,12 @@ export const WorkPage: React.FC = () => {
       />
 
       <Section id="work-grid">
+        {isLoading && <p className="mb-8 text-sm text-neutral-400" role="status">Loading projects…</p>}
+        {error && <p className="mb-8 text-sm text-rose-300" role="alert">{error}</p>}
+        {!isLoading && !error && projects.length === 0 && (
+          <p className="mb-8 text-sm text-neutral-400">No projects are currently published.</p>
+        )}
+
         {/* Category Filters */}
         <div className="flex flex-wrap gap-2 mb-12">
           {categories.map((cat) => (
@@ -68,12 +76,11 @@ export const WorkPage: React.FC = () => {
         </div>
 
         {/* Project Cards Grid */}
-        <motion.div layout className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <m.div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <AnimatePresence>
             {filteredProjects.map((project) => (
-              <motion.div
+              <m.div
                 key={project.id}
-                layout
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
@@ -88,8 +95,11 @@ export const WorkPage: React.FC = () => {
                   <div className="group relative overflow-hidden rounded-2xl">
                     <div className="relative h-72 w-full overflow-hidden bg-obsidian-950 sm:h-80">
                       <img
-                        src={project.image}
+                        src={getProjectImage(project)}
                         alt={project.title}
+                        width={1000}
+                        height={650}
+                        loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/40 to-transparent" />
@@ -141,10 +151,10 @@ export const WorkPage: React.FC = () => {
                     </div>
                   </div>
                 </TiltCard>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </m.div>
 
         {/* Bottom Kickoff Banner */}
         <div className="mt-20 rounded-3xl border border-white/10 bg-obsidian-900/60 p-8 sm:p-12 text-center backdrop-blur-xl">

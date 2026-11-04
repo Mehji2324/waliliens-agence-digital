@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { m, useMotionValue, useSpring } from 'framer-motion';
 import { useCursor } from '../../context/CursorContext';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 
@@ -52,9 +52,9 @@ export const CustomCursor: React.FC = () => {
   const isHoverState = cursorType === 'hover';
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden custom-cursor">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden custom-cursor">
       {/* Center core pinpoint dot */}
-      <motion.div
+      <m.div
         className="fixed top-0 left-0 h-2 w-2 rounded-full bg-cyber-cyan shadow-[0_0_10px_#00F0FF]"
         style={{
           x: mouseX,
@@ -66,7 +66,7 @@ export const CustomCursor: React.FC = () => {
       />
 
       {/* Dynamic Trailing Spring Aura */}
-      <motion.div
+      <m.div
         className={`fixed top-0 left-0 flex items-center justify-center rounded-full border transition-colors duration-300 ${
           isTextState
             ? 'h-20 w-20 bg-cyber-violet/90 text-white backdrop-blur-md border-white/40 shadow-[0_0_30px_rgba(139,92,246,0.6)]'
@@ -86,15 +86,15 @@ export const CustomCursor: React.FC = () => {
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
         {isTextState && (
-          <motion.span
+          <m.span
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-[10px] font-mono font-bold tracking-widest uppercase text-white"
           >
             {cursorText}
-          </motion.span>
+          </m.span>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 };

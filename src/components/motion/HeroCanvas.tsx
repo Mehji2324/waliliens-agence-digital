@@ -28,7 +28,8 @@ export const HeroCanvas: React.FC = () => {
     let animationFrameId: number;
     let width = window.innerWidth;
     let height = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = window.matchMedia('(max-width: 1023px), (any-pointer: coarse)').matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 2);
 
     const resizeCanvas = () => {
       width = window.innerWidth;
@@ -37,7 +38,7 @@ export const HeroCanvas: React.FC = () => {
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       initParticles();
     };
 
@@ -67,9 +68,8 @@ export const HeroCanvas: React.FC = () => {
     const initParticles = () => {
       particles = [];
       // Adjust density based on screen size (mobile friendly)
-      const isMobile = width < 768;
       const count = isMobile
-        ? Math.min(Math.floor((width * height) / 28000), 28)
+        ? Math.min(Math.floor((width * height) / 60000), 12)
         : Math.min(Math.floor((width * height) / 16000), 65);
 
       for (let i = 0; i < count; i++) {
@@ -124,7 +124,7 @@ export const HeroCanvas: React.FC = () => {
       ctx.fillRect(0, 0, width, height);
 
       // Connection lines
-      const maxDist = width < 768 ? 95 : 120;
+      const maxDist = isMobile ? 65 : 120;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -172,7 +172,7 @@ export const HeroCanvas: React.FC = () => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
         ctx.globalAlpha = Math.max(0.08, Math.min(0.9, currentAlpha));
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = isMobile ? 0 : 8;
         ctx.shadowColor = p.color;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -202,6 +202,7 @@ export const HeroCanvas: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
+      aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-65"
     />
   );

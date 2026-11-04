@@ -14,6 +14,7 @@ export const AdminBookingDetailsPage: React.FC = () => {
   useSeo({
     title: `Booking Details — ${id || 'Waliliens'}`,
     description: 'Waliliens Studio Operations Terminal.',
+    robots: 'noindex, nofollow',
   });
 
   const [booking, setBooking] = useState<AdminBooking | null>(null);

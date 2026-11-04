@@ -156,4 +156,5 @@ export interface SeoMeta {
   description: string;
   canonical?: string;
   keywords?: string[];
+  robots?: string;
 }

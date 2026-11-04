@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { STORY_STEPS } from '../../data/testimonials';
 import { ShieldCheck, Compass, Sparkles, Code2, Rocket, Terminal, Activity } from 'lucide-react';
 
@@ -8,7 +8,13 @@ export const ScrollPinStory: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 1023px), (any-pointer: coarse)').matches) return;
+    let frameId = 0;
+
     const handleScroll = () => {
+      if (frameId) return;
+      frameId = requestAnimationFrame(() => {
+        frameId = 0;
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
@@ -23,10 +29,14 @@ export const ScrollPinStory: React.FC = () => {
       );
 
       setActiveStep(stepIndex);
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const icons = [Compass, Sparkles, Code2, Rocket];
@@ -36,7 +46,7 @@ export const ScrollPinStory: React.FC = () => {
     <section
       ref={containerRef}
       id="process"
-      className="relative min-h-[260vh] bg-obsidian-950 px-6 py-20 sm:px-12 lg:px-24"
+      className="relative min-h-[100vh] bg-obsidian-950 px-6 py-20 sm:px-12 lg:min-h-[260vh] lg:px-24"
     >
       {/* Sticky Storytelling Stage */}
       <div className="sticky top-20 mx-auto max-w-7xl">
@@ -61,9 +71,18 @@ export const ScrollPinStory: React.FC = () => {
             {STORY_STEPS.map((step, index) => {
               const isActive = activeStep === index;
               return (
-                <motion.div
+                <m.div
                   key={step.phase}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isActive}
                   onClick={() => setActiveStep(index)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setActiveStep(index);
+                    }
+                  }}
                   animate={{
                     opacity: isActive ? 1 : 0.4,
                     x: isActive ? 6 : 0,
@@ -96,7 +115,7 @@ export const ScrollPinStory: React.FC = () => {
                     <ShieldCheck className="h-3.5 w-3.5 text-cyber-emerald shrink-0" />
                     <span className="truncate">{step.stats}</span>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
@@ -128,7 +147,7 @@ export const ScrollPinStory: React.FC = () => {
               {/* Graphic State */}
               <div className="relative z-10 my-auto flex flex-col items-center justify-center text-center">
                 <AnimatePresence mode="wait">
-                  <motion.div
+                  <m.div
                     key={activeStep}
                     initial={{ opacity: 0, scale: 0.88, rotate: -4 }}
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -149,7 +168,7 @@ export const ScrollPinStory: React.FC = () => {
                     <p className="mt-1.5 max-w-sm text-xs text-neutral-400">
                       {STORY_STEPS[activeStep].subtitle}
                     </p>
-                  </motion.div>
+                  </m.div>
                 </AnimatePresence>
               </div>
 

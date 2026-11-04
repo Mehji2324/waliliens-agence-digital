@@ -16,7 +16,7 @@ export const PROJECTS: Project[] = [
       { metric: '60 FPS', label: '3D Graph Engine' }
     ],
     technologies: ['React 19', 'Three.js / WebGL', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/project-chronos.webp',
     accentColor: '#00F0FF',
     featured: true,
     award: 'Featured on Awwwards & Godly Design',
@@ -46,7 +46,7 @@ export const PROJECTS: Project[] = [
       { metric: '< 2.8MB', label: 'Total Asset Payload' }
     ],
     technologies: ['Three.js', 'Custom GLSL Shaders', 'Web Audio API', 'Framer Motion', 'TypeScript'],
-    image: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/project-aether.webp',
     accentColor: '#8B5CF6',
     featured: true,
     award: 'CSS Design Awards — Site of the Day',
@@ -76,7 +76,7 @@ export const PROJECTS: Project[] = [
       { metric: '100/100', label: 'Lighthouse Score' }
     ],
     technologies: ['React 19', 'HTML5 Canvas', 'WebSockets', 'Tailwind CSS', 'TypeScript'],
-    image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/project-vortex.webp',
     accentColor: '#10B981',
     featured: true,
     caseStudy: {
@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
       { metric: '< 0.7s', label: 'Initial Page Load' }
     ],
     technologies: ['React 19', 'Deck.gl / Mapbox', 'Framer Motion', 'Tailwind CSS', 'TypeScript'],
-    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/project-hyperion.webp',
     accentColor: '#F43F5E',
     featured: true,
     award: 'Red Dot Design Award Concept Winner',

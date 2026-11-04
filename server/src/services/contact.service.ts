@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import type { ContactRequest, ContactRecord } from '../types/domain';
 import { ValidationError } from '../utils/http-errors';
 import { contactsRepository } from '../repositories/contacts.repository';
+import { logger } from '../utils/logger';
 
 export const contactSchema = z.object({
   name: z
@@ -65,9 +66,9 @@ export class ContactService {
         receivedAt: new Date(),
         createdAt: new Date(),
       });
-      console.log(`[ContactService] Persisted brief [${messageId}] to database for ${validated.name} (${validated.email})`);
+      logger.info({ messageId, name: validated.name, email: validated.email }, `[ContactService] Persisted brief [${messageId}] to database`);
     } catch (dbErr) {
-      console.warn('[ContactService] Database unavailable, buffered in memory fallback:', dbErr instanceof Error ? dbErr.message : dbErr);
+      logger.warn({ err: dbErr, messageId }, '[ContactService] Database unavailable, buffered in memory fallback');
       this.fallbackSubmissions.push({
         ...validated,
         id: messageId,

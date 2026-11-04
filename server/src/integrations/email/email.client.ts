@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { env } from '../../config/env';
 import type { SendEmailPayload, SendEmailResult } from './email.types';
+import { logger } from '../../utils/logger';
 
 let cachedResend: Resend | null = null;
 
@@ -35,7 +36,7 @@ export class EmailClient {
 
   public async send(payload: SendEmailPayload): Promise<SendEmailResult> {
     if (!this.isEnabled()) {
-      console.log(`[EMAIL] Delivery skipped (EMAIL_ENABLED=false) for recipient: ${Array.isArray(payload.to) ? payload.to.join(', ') : payload.to} — Subject: "${payload.subject}"`);
+      logger.info({ recipient: payload.to, subject: payload.subject }, '[EMAIL] Delivery skipped (EMAIL_ENABLED=false)');
       return { success: true, skipped: true };
     }
 
@@ -51,7 +52,7 @@ export class EmailClient {
       });
 
       if (response.error) {
-        console.error(`[EMAIL] Provider error delivering email to ${Array.isArray(payload.to) ? payload.to.join(', ') : payload.to}:`, response.error.message);
+        logger.error({ recipient: payload.to, error: response.error.message }, '[EMAIL] Provider error delivering email');
         return {
           success: false,
           error: response.error.message,
@@ -59,14 +60,14 @@ export class EmailClient {
       }
 
       const emailId = response.data?.id;
-      console.log(`[EMAIL] Successfully dispatched email [${emailId}] to ${Array.isArray(payload.to) ? payload.to.join(', ') : payload.to}`);
+      logger.info({ emailId, recipient: payload.to }, '[EMAIL] Successfully dispatched email');
       return {
         success: true,
         id: emailId,
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown email dispatch error';
-      console.error(`[EMAIL] Failed to dispatch email to ${Array.isArray(payload.to) ? payload.to.join(', ') : payload.to}:`, message);
+      logger.error({ err, recipient: payload.to }, '[EMAIL] Failed to dispatch email');
       return {
         success: false,
         error: message,

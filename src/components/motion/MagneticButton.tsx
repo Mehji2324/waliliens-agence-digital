@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { m, useSpring } from 'framer-motion';
 import { useCursor } from '../../context/CursorContext';
 import { soundManager } from '../../utils/sound';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -77,7 +77,7 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({
       'bg-obsidian-900 text-cyber-cyan border border-cyber-cyan/40 hover:border-cyber-cyan hover:bg-cyber-cyan/10 shadow-[0_0_20px_rgba(0,240,255,0.2)]',
   };
 
-  const Component = as === 'a' ? motion.a : motion.button;
+  const Component = as === 'a' ? m.a : m.button;
 
   return (
     <div
@@ -98,12 +98,12 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({
         <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
 
         {/* Floating text with higher parallax spring depth */}
-        <motion.span
+        <m.span
           style={prefersReducedMotion ? {} : { x: textX, y: textY }}
           className="relative z-10 flex items-center gap-2"
         >
           {children}
-        </motion.span>
+        </m.span>
       </Component>
     </div>
   );

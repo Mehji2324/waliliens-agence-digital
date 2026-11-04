@@ -67,7 +67,7 @@ export interface DashboardData {
 }
 
 export const adminApi = {
-  login: async (credentials: { email: string; password: string; rememberMe?: boolean }): Promise<ApiResponse<{ email: string; token: string }>> => {
+  login: async (credentials: { email: string; password: string; rememberMe?: boolean }): Promise<ApiResponse<{ email: string; expiresInHours: number }>> => {
     return apiClient.post('/api/admin/login', credentials);
   },
 

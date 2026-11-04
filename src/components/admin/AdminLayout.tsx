@@ -40,7 +40,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, child
           onOpenSidebar={() => setIsSidebarOpen(true)}
         />
 
-        <main className="flex-1 p-6 sm:p-10 max-w-7xl w-full mx-auto animate-fade-in">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-6 sm:p-10 max-w-7xl w-full mx-auto animate-fade-in">
           {children}
         </main>
       </div>

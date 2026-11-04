@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { m, type Variants } from 'framer-motion';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 interface TextRevealProps {
@@ -58,7 +58,7 @@ export const TextReveal: React.FC<TextRevealProps> = ({
     };
 
     return (
-      <motion.span
+      <m.span
         className={`inline-flex flex-wrap gap-x-[0.28em] ${className}`}
         variants={container}
         initial="hidden"
@@ -67,15 +67,15 @@ export const TextReveal: React.FC<TextRevealProps> = ({
       >
         {words.map((word, index) => (
           <span key={index} className="inline-block overflow-hidden pb-1">
-            <motion.span
+            <m.span
               variants={child}
               className={`inline-block ${gradient ? 'gradient-text-hero' : ''}`}
             >
               {word}
-            </motion.span>
+            </m.span>
           </span>
         ))}
-      </motion.span>
+      </m.span>
     );
   }
 
@@ -108,7 +108,7 @@ export const TextReveal: React.FC<TextRevealProps> = ({
   };
 
   return (
-    <motion.span
+    <m.span
       className={`inline-block ${className}`}
       variants={container}
       initial="hidden"
@@ -116,7 +116,7 @@ export const TextReveal: React.FC<TextRevealProps> = ({
       viewport={{ once: true }}
     >
       {characters.map((char, index) => (
-        <motion.span
+        <m.span
           key={index}
           variants={child}
           className={`inline-block ${char === ' ' ? 'w-[0.25em]' : ''} ${
@@ -124,8 +124,8 @@ export const TextReveal: React.FC<TextRevealProps> = ({
           }`}
         >
           {char}
-        </motion.span>
+        </m.span>
       ))}
-    </motion.span>
+    </m.span>
   );
 };

@@ -51,7 +51,7 @@ test.describe('Booking Flow E2E', () => {
     // Fill client details
     await page.locator('input[placeholder*="Satoshi Nakamoto"]').fill('Sarah Connor');
     await page.locator('input[placeholder*="satoshi@bitcoin.org"]').fill('sarah@cyberdyne.io');
-    await page.getByRole('checkbox', { name: /privacy policy/i }).check();
+    await page.getByRole('checkbox', { name: /be contacted/i }).check();
 
     // Submit the booking
     await page.getByRole('button', { name: /CONFIRM DISCOVERY SESSION/i }).click();

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Orbit } from 'lucide-react';
 import { useCursor } from '../../context/CursorContext';
 import { soundManager } from '../../utils/sound';
@@ -76,7 +76,7 @@ export const TechRadarSection: React.FC = () => {
           {technologies.map((tech, idx) => {
             const isSelected = activeTechIndex === idx;
             return (
-              <motion.div
+              <m.div
                 key={tech.name}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -121,7 +121,7 @@ export const TechRadarSection: React.FC = () => {
                   <span>FRAME TARGET</span>
                   <span className="text-white font-mono">60 FPS</span>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>

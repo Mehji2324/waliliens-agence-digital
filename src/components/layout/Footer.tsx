@@ -4,6 +4,7 @@ import { ArrowUp, Globe, Clock, Mail } from 'lucide-react';
 import { MagneticButton } from '../motion/MagneticButton';
 import { Logo } from '../ui/Logo';
 import { soundManager } from '../../utils/sound';
+import { openConsentSettings } from '../../utils/consent';
 import { FOOTER_NAV_ITEMS } from '../../data/navigation';
 
 export const Footer: React.FC = () => {
@@ -70,17 +71,26 @@ export const Footer: React.FC = () => {
                   {item.name}
                 </Link>
               ))}
+              {import.meta.env.VITE_SENTRY_DSN && (
+                <button
+                  type="button"
+                  onClick={openConsentSettings}
+                  className="transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+                >
+                  Cookie settings
+                </button>
+              )}
             </div>
           </div>
 
           {/* Direct Contact & Top Action */}
           <div className="flex flex-wrap items-center gap-4">
             <a
-              href="mailto:hello@waliliens.com"
+              href="mailto:waliliens.ai@gmail.com"
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-obsidian-900/80 px-4 py-2.5 font-mono text-xs text-neutral-300 transition-colors hover:border-cyber-cyan hover:text-white focus-visible:ring-2 focus-visible:ring-cyber-cyan"
             >
               <Mail className="h-3.5 w-3.5 text-cyber-cyan" />
-              <span>hello@waliliens.com</span>
+              <span>waliliens.ai@gmail.com</span>
             </a>
 
             <MagneticButton

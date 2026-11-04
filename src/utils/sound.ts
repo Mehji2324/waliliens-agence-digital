@@ -2,6 +2,12 @@ class SoundFX {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = true; // Default muted for respectful UX
 
+  private canPlay() {
+    return !this.isMuted &&
+      !(typeof window !== 'undefined' &&
+        (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0));
+  }
+
   constructor() {
     // Lazy initialize on first user interaction
   }
@@ -31,7 +37,7 @@ class SoundFX {
   }
 
   public playHover() {
-    if (this.isMuted) return;
+    if (!this.canPlay()) return;
     this.initCtx();
     if (!this.ctx) return;
 
@@ -57,7 +63,7 @@ class SoundFX {
   }
 
   public playClick() {
-    if (this.isMuted) return;
+    if (!this.canPlay()) return;
     this.initCtx();
     if (!this.ctx) return;
 
@@ -83,7 +89,7 @@ class SoundFX {
   }
 
   public playWhoosh(startFreq = 300, endFreq = 900, duration = 0.12) {
-    if (this.isMuted) return;
+    if (!this.canPlay()) return;
     this.initCtx();
     if (!this.ctx) return;
 
@@ -109,7 +115,7 @@ class SoundFX {
   }
 
   public playSuccess() {
-    if (this.isMuted) return;
+    if (!this.canPlay()) return;
     this.initCtx();
     if (!this.ctx) return;
 

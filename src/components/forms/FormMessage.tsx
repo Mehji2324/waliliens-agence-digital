@@ -6,6 +6,7 @@ interface FormMessageProps {
   title: string;
   message: string;
   className?: string;
+  id?: string;
 }
 
 export const FormMessage: React.FC<FormMessageProps> = ({
@@ -13,11 +14,13 @@ export const FormMessage: React.FC<FormMessageProps> = ({
   title,
   message,
   className = '',
+  id,
 }) => {
   const isSuccess = type === 'success';
 
   return (
     <div
+      id={id}
       role="alert"
       className={`rounded-2xl border p-5 ${
         isSuccess

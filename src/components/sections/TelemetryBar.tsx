@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { TELEMETRY_METRICS } from '../../data/testimonials';
 
 export const TelemetryBar: React.FC = () => {
@@ -8,7 +8,7 @@ export const TelemetryBar: React.FC = () => {
       <div className="mx-auto max-w-7xl px-6 sm:px-12">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {TELEMETRY_METRICS.map((metric, idx) => (
-            <motion.div
+            <m.div
               key={metric.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -26,7 +26,7 @@ export const TelemetryBar: React.FC = () => {
               <div className="mt-1 font-mono text-[11px] text-cyber-violet">
                 {metric.change}
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

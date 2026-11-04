@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { X, Mail, Building, DollarSign, Calendar, MessageSquare, CheckCircle } from 'lucide-react';
 import type { AdminContactSubmission } from '../../services/api/admin';
+import { useModalAccessibility } from '../../hooks/useModalAccessibility';
 
 interface ContactDetailsModalProps {
   contact: AdminContactSubmission | null;
@@ -18,6 +19,8 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   const [status, setStatus] = useState<'new' | 'processed' | 'archived'>('new');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalAccessibility(isOpen && Boolean(contact), dialogRef, onClose);
 
   React.useEffect(() => {
     if (contact) {
@@ -41,9 +44,10 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian-950/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-obsidian-900 p-6 sm:p-8 shadow-2xl">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="contact-details-title" tabIndex={-1} className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-obsidian-900 p-6 sm:p-8 shadow-2xl">
         <button
           onClick={onClose}
+          aria-label="Close contact details"
           className="absolute top-5 right-5 text-neutral-400 hover:text-white transition-colors"
         >
           <X className="h-5 w-5" />
@@ -54,7 +58,7 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
             <MessageSquare className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-display text-lg font-bold text-white">{contact.name}</h3>
+            <h3 id="contact-details-title" className="font-display text-lg font-bold text-white">{contact.name}</h3>
             <a href={`mailto:${contact.email}`} className="font-mono text-xs text-cyber-cyan hover:underline">
               {contact.email}
             </a>
@@ -129,8 +133,9 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
         <form onSubmit={handleSave} className="mt-5 space-y-4 border-t border-white/10 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-mono text-xs text-neutral-300 mb-1">Status</label>
+              <label htmlFor="contact-details-status" className="block font-mono text-xs text-neutral-300 mb-1">Status</label>
               <select
+                id="contact-details-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'new' | 'processed' | 'archived')}
                 className="w-full rounded-xl border border-white/10 bg-obsidian-950 px-3 py-2 text-xs font-mono text-white focus:border-cyber-cyan focus:outline-none"
@@ -142,8 +147,9 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-mono text-xs text-neutral-300 mb-1">Internal Notes</label>
+              <label htmlFor="contact-details-notes" className="block font-mono text-xs text-neutral-300 mb-1">Internal Notes</label>
               <input
+                id="contact-details-notes"
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

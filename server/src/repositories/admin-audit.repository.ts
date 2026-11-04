@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { db } from '../db';
 import { adminAuditLogsTable, type InsertAdminAuditLog, type SelectAdminAuditLog } from '../db/schema';
+import { logger } from '../utils/logger';
 
 export class AdminAuditRepository {
   public async log(params: {
@@ -26,7 +27,7 @@ export class AdminAuditRepository {
       const rows = await db.insert(adminAuditLogsTable).values(entry).returning();
       return rows[0] || null;
     } catch {
-      console.log(`[AUDIT] Action "${params.action}" by ${params.adminEmail} on ${params.targetType}:${params.targetId || 'N/A'}`);
+      logger.info({ action: params.action, adminEmail: params.adminEmail, targetType: params.targetType, targetId: params.targetId }, `[AUDIT] Action "${params.action}"`);
       return null;
     }
   }

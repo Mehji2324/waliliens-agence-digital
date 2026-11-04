@@ -9,6 +9,53 @@ import type { GoogleCalendarEventResult } from './google-calendar.types';
 import { emailService } from '../email/email.service';
 import type { BookingEmailData, EmailNotificationStatus } from '../email/email.types';
 
+/**
+ * Accurately converts a local wall-clock date ('YYYY-MM-DD') and time ('HH:mm')
+ * in a specified IANA timezone into a UTC Date instant.
+ * Handles DST shifts, positive/negative offsets, and UTC without external dependencies.
+ */
+export function localDateTimeToUtc(dateStr: string, timeStr: string, timeZone: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const [hour, minute] = timeStr.split(':').map(Number);
+
+  // Initial approximation assuming UTC
+  const approxUtc = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  let utcMs = approxUtc;
+  for (let iter = 0; iter < 3; iter++) {
+    const parts = dtf.formatToParts(new Date(utcMs));
+    const map: Record<string, number> = {};
+    for (const p of parts) {
+      if (p.type !== 'literal') map[p.type] = parseInt(p.value, 10);
+    }
+    const tzHour = (map.hour || 0) % 24;
+    const targetTzMs = Date.UTC(map.year, (map.month || 1) - 1, map.day || 1, tzHour, map.minute || 0, map.second || 0, 0);
+    const diff = approxUtc - targetTzMs;
+    if (diff === 0) break;
+    utcMs += diff;
+  }
+
+  return new Date(utcMs);
+}
+
+/**
+ * Formats a given Date instant (or now) as 'YYYY-MM-DD' in a specified IANA timezone.
+ */
+export function getTodayDateString(timeZone: string, date: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(date);
+}
+
 export class CalendarUnavailableError extends AppError {
   constructor(message = 'Booking availability is temporarily unavailable') {
     super(message, 503, 'CALENDAR_UNAVAILABLE');
@@ -101,8 +148,8 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
       const eHourStr = eHour.toString().padStart(2, '0');
       const eMinStr = eMin.toString().padStart(2, '0');
 
-      const startIso = `${dateStr}T${sHourStr}:${sMinStr}:00.000Z`;
-      const endIso = `${dateStr}T${eHourStr}:${eMinStr}:00.000Z`;
+      const startIso = localDateTimeToUtc(dateStr, `${sHourStr}:${sMinStr}`, env.booking.timezone).toISOString();
+      const endIso = localDateTimeToUtc(dateStr, `${eHourStr}:${eMinStr}`, env.booking.timezone).toISOString();
 
       const ampm = sHour >= 12 ? 'PM' : 'AM';
       const displayHour = sHour % 12 === 0 ? 12 : sHour % 12;
@@ -126,7 +173,7 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
    * Retrieves genuinely available 30-minute slots by querying Google Calendar FreeBusy and local PostgreSQL bookings.
    */
   public async getAvailableSlots(date?: string): Promise<BookingSlot[]> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const targetDate = date || getTodayDateString(env.booking.timezone);
 
     // Validate date format YYYY-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
@@ -152,8 +199,8 @@ export class GoogleCalendarBookingProvider implements IBookingProvider {
     if (GoogleCalendarClientFactory.isConfigured() || this.calendarClientOverride) {
       try {
         const calendar = this.getCalendar();
-        const timeMin = `${targetDate}T00:00:00.000Z`;
-        const timeMax = `${targetDate}T23:59:59.999Z`;
+        const timeMin = localDateTimeToUtc(targetDate, '00:00', env.booking.timezone).toISOString();
+        const timeMax = localDateTimeToUtc(targetDate, '23:59', env.booking.timezone).toISOString();
 
         const freeBusyRes = await calendar.freebusy.query({
           requestBody: {

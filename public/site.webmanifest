@@ -1,0 +1,18 @@
+{
+  "name": "WALILIENS — Kinetic AI & Digital Engineering",
+  "short_name": "WALILIENS",
+  "description": "Creative digital and AI studio.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#040406",
+  "theme_color": "#040406",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

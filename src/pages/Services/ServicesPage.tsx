@@ -1,15 +1,16 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Section } from '../../components/layout/Section';
 import { TiltCard } from '../../components/motion/TiltCard';
-import { SERVICES } from '../../data/services';
 import { useSeo } from '../../hooks/useSeo';
 import { Cpu, Layers, Activity, Zap, Check, X, ArrowUpRight, ShieldCheck, UserCheck } from 'lucide-react';
 import { MagneticButton } from '../../components/motion/MagneticButton';
 import { Link } from 'react-router-dom';
+import { useServices } from '../../hooks/useCatalogData';
 
 export const ServicesPage: React.FC = () => {
+  const { items: services, isLoading, error } = useServices();
   useSeo({
     title: 'Services & Capabilities',
     description: 'Explore Waliliens core engineering capabilities: Custom Web Applications, Motion Design & 3D, AI Integrations, and Design Systems.',
@@ -42,9 +43,14 @@ export const ServicesPage: React.FC = () => {
 
       {/* Services Deep Dive Grid */}
       <Section id="services-grid">
+        {isLoading && <p className="text-sm text-neutral-400" role="status">Loading services…</p>}
+        {error && <p className="text-sm text-rose-300" role="alert">{error}</p>}
+        {!isLoading && !error && services.length === 0 && (
+          <p className="text-sm text-neutral-400">No services are currently published.</p>
+        )}
         <div className="space-y-12">
-          {SERVICES.map((service, idx) => (
-            <motion.div
+          {services.map((service, idx) => (
+            <m.div
               key={service.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -133,7 +139,7 @@ export const ServicesPage: React.FC = () => {
                   </div>
                 </div>
               </TiltCard>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </Section>

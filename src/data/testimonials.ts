@@ -7,7 +7,7 @@ export const TESTIMONIALS: Testimonial[] = [
     author: 'Elena Rostova',
     role: 'VP of Product',
     company: 'Chronos Labs',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
+    avatar: '/images/avatar-elena.webp',
     impact: '3.4x Engagement Lift',
     highlight: 'World-class motion design combined with disciplined engineering.'
   },
@@ -17,7 +17,7 @@ export const TESTIMONIALS: Testimonial[] = [
     author: 'Marcus Vance',
     role: 'Managing Director',
     company: 'Aether Maison',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+    avatar: '/images/avatar-marcus.webp',
     impact: '+240% Session Duration',
     highlight: 'Photorealistic WebGL fidelity without compromising mobile load times.'
   },
@@ -27,7 +27,7 @@ export const TESTIMONIALS: Testimonial[] = [
     author: 'Siddharth Nair',
     role: 'Head of Quantitative Products',
     company: 'Vortex Capital',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop',
+    avatar: '/images/avatar-siddharth.webp',
     impact: 'Sub-Second Load Time',
     highlight: 'Zero latency, exceptional visual clarity and type-safe architecture.'
   }

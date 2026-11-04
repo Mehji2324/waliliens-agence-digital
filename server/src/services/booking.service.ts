@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import type { BookingSlot } from '../types/domain';
 import { ValidationError } from '../utils/http-errors';
+import { env } from '../config/env';
 import {
   GoogleCalendarBookingProvider,
+  getTodayDateString,
   type IBookingProvider,
 } from '../integrations/google-calendar/google-calendar.provider';
 import type { EmailNotificationStatus } from '../integrations/email/email.types';
@@ -15,10 +17,8 @@ export const bookingReserveSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Date must be formatted as YYYY-MM-DD' })
     .refine(
       (dateStr) => {
-        const dateObj = new Date(`${dateStr}T23:59:59.999Z`);
-        const now = new Date();
-        const todayStart = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
-        return dateObj >= todayStart;
+        const todayStr = getTodayDateString(env.booking.timezone);
+        return dateStr >= todayStr;
       },
       { message: 'Cannot book consultation dates in the past' }
     ),
@@ -35,7 +35,7 @@ export const bookingReserveSchema = z.object({
     .max(255, { message: 'Email cannot exceed 255 characters' }),
   company: z.string().trim().max(100).optional().default(''),
   projectScope: z.string().trim().max(2000).optional().default(''),
-  timezone: z.string().trim().max(50).optional().default('Africa/Casablanca'),
+  timezone: z.string().trim().max(50).optional().default(env.booking.timezone),
 });
 
 export interface BookingConfirmation {
@@ -74,10 +74,8 @@ export class BookingService {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         throw new ValidationError('Invalid date format. Expected YYYY-MM-DD.');
       }
-      const dateObj = new Date(`${date}T23:59:59.999Z`);
-      const now = new Date();
-      const todayStart = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
-      if (dateObj < todayStart) {
+      const todayStr = getTodayDateString(env.booking.timezone);
+      if (date < todayStr) {
         throw new ValidationError('Cannot query consultation availability for past dates.');
       }
     }

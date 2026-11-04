@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, X, Clock, AlertCircle } from 'lucide-react';
 import { bookingService } from '../../services/api/booking';
 import type { BookingSlot } from '../../types';
 import type { AdminBooking } from '../../services/api/admin';
+import { useModalAccessibility } from '../../hooks/useModalAccessibility';
 
 interface RescheduleModalProps {
   booking: AdminBooking | null;
@@ -19,12 +20,16 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
   onConfirm,
   isSubmitting,
 }) => {
-  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowStr = new Intl.DateTimeFormat('en-CA').format(tomorrowDate);
   const [targetDate, setTargetDate] = useState<string>(tomorrowStr);
   const [slots, setSlots] = useState<BookingSlot[]>([]);
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [isLoadingSlots, setIsLoadingSlots] = useState<boolean>(false);
   const [slotError, setSlotError] = useState<string>('');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalAccessibility(isOpen && Boolean(booking), dialogRef, onClose);
 
   useEffect(() => {
     if (!isOpen || !targetDate) return;
@@ -62,9 +67,10 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian-950/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-3xl border border-cyber-cyan/30 bg-obsidian-900 p-6 sm:p-8 shadow-2xl shadow-cyan-950/40">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="reschedule-title" tabIndex={-1} className="relative w-full max-w-lg rounded-3xl border border-cyber-cyan/30 bg-obsidian-900 p-6 sm:p-8 shadow-2xl shadow-cyan-950/40">
         <button
           onClick={onClose}
+          aria-label="Close reschedule dialog"
           className="absolute top-5 right-5 text-neutral-400 hover:text-white transition-colors"
         >
           <X className="h-5 w-5" />
@@ -75,7 +81,7 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
             <Calendar className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-display text-lg font-bold text-white">Reschedule Discovery Call</h3>
+            <h3 id="reschedule-title" className="font-display text-lg font-bold text-white">Reschedule Discovery Call</h3>
             <p className="font-mono text-xs text-neutral-400">ID: {booking.bookingId} — {booking.name}</p>
           </div>
         </div>
@@ -88,10 +94,11 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {/* Target Date Picker */}
           <div>
-            <label className="block font-mono text-xs text-neutral-300 mb-1.5">
+            <label htmlFor="reschedule-date" className="block font-mono text-xs text-neutral-300 mb-1.5">
               01 // Choose New Date
             </label>
             <input
+              id="reschedule-date"
               type="date"
               min={tomorrowStr}
               value={targetDate}
@@ -102,10 +109,10 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
 
           {/* Time Slot Selection */}
           <div>
-            <label className="block font-mono text-xs text-neutral-300 mb-1.5 flex items-center justify-between">
+            <div id="available-slots-label" className="mb-1.5 flex items-center justify-between font-mono text-xs text-neutral-300">
               <span>02 // Available 30-Minute Slots</span>
               {isLoadingSlots && <span className="text-cyber-cyan animate-pulse">Checking calendar...</span>}
-            </label>
+            </div>
 
             {slotError ? (
               <div className="flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-400">
@@ -117,13 +124,14 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
                 No slots found for this date.
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 max-h-48 overflow-y-auto pr-1">
+              <div role="group" aria-labelledby="available-slots-label" className="grid grid-cols-2 gap-2 sm:grid-cols-3 max-h-48 overflow-y-auto pr-1">
                 {slots.map((slot) => (
                   <button
                     key={slot.id}
                     type="button"
                     disabled={!slot.available}
                     onClick={() => setSelectedSlotId(slot.id)}
+                    aria-pressed={selectedSlotId === slot.id}
                     className={`rounded-xl border py-2 px-2 text-center font-mono text-xs transition-all ${
                       !slot.available
                         ? 'border-white/5 bg-obsidian-950/30 text-neutral-600 line-through cursor-not-allowed'

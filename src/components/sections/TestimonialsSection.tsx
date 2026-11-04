@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { TESTIMONIALS } from '../../data/testimonials';
 import { TiltCard } from '../motion/TiltCard';
 import { MessageSquareQuote, Star } from 'lucide-react';
@@ -25,7 +25,7 @@ export const TestimonialsSection: React.FC = () => {
         {/* Testimonials Cards Grid */}
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
           {TESTIMONIALS.map((item, idx) => (
-            <motion.div
+            <m.div
               key={item.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +56,10 @@ export const TestimonialsSection: React.FC = () => {
                 <div className="mt-8 flex items-center gap-4 border-t border-white/10 pt-5">
                   <img
                     src={item.avatar}
-                    alt={item.author}
+                    alt=""
+                    width={200}
+                    height={200}
+                    loading="lazy"
                     className="h-12 w-12 rounded-full border border-white/20 object-cover"
                   />
                   <div>
@@ -69,7 +72,7 @@ export const TestimonialsSection: React.FC = () => {
                   </div>
                 </div>
               </TiltCard>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
   renderTeamRescheduleNotification,
   type BookingRescheduleData,
 } from './templates/booking-reschedule';
+import { logger } from '../../utils/logger';
 
 export class EmailService {
   private client: EmailClient;
@@ -38,15 +39,15 @@ export class EmailService {
       });
 
       if (result.success && !result.skipped) {
-        console.log(`[EMAIL] Booking confirmation sent: ${data.bookingId} -> ${data.clientEmail}`);
+        logger.info({ bookingId: data.bookingId, clientEmail: data.clientEmail }, '[EMAIL] Booking confirmation sent');
       } else if (!result.success) {
-        console.warn(`[EMAIL] Failed to send client confirmation for ${data.bookingId}: ${result.error}`);
+        logger.warn({ bookingId: data.bookingId, error: result.error }, '[EMAIL] Failed to send client confirmation');
       }
 
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send client confirmation for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send client confirmation');
       return { success: false, error: message };
     }
   }
@@ -55,7 +56,7 @@ export class EmailService {
     const { subject, html, text } = renderBookingNotificationEmail(data);
 
     try {
-      const recipient = env.email.notificationRecipient || 'hello@waliliens.com';
+      const recipient = env.email.notificationRecipient || 'waliliens.ai@gmail.com';
       const result = await this.client.send({
         to: recipient,
         subject,
@@ -65,15 +66,15 @@ export class EmailService {
       });
 
       if (result.success && !result.skipped) {
-        console.log(`[EMAIL] Internal notification sent: ${data.bookingId} -> ${recipient}`);
+        logger.info({ bookingId: data.bookingId, recipient }, '[EMAIL] Internal notification sent');
       } else if (!result.success) {
-        console.warn(`[EMAIL] Failed to send internal notification for ${data.bookingId}: ${result.error}`);
+        logger.warn({ bookingId: data.bookingId, error: result.error }, '[EMAIL] Failed to send internal notification');
       }
 
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send internal notification for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send internal notification');
       return { success: false, error: message };
     }
   }
@@ -110,12 +111,12 @@ export class EmailService {
       });
 
       if (result.success && !result.skipped) {
-        console.log(`[EMAIL] Cancellation email sent: ${data.bookingId} -> ${data.clientEmail}`);
+        logger.info({ bookingId: data.bookingId, clientEmail: data.clientEmail }, '[EMAIL] Cancellation email sent');
       }
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send cancellation email for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send cancellation email');
       return { success: false, error: message };
     }
   }
@@ -124,7 +125,7 @@ export class EmailService {
     const { subject, html, text } = renderTeamCancellationNotification(data);
 
     try {
-      const recipient = env.email.notificationRecipient || 'hello@waliliens.com';
+      const recipient = env.email.notificationRecipient || 'waliliens.ai@gmail.com';
       const result = await this.client.send({
         to: recipient,
         subject,
@@ -135,7 +136,7 @@ export class EmailService {
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send team cancellation for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send team cancellation');
       return { success: false, error: message };
     }
   }
@@ -172,12 +173,12 @@ export class EmailService {
       });
 
       if (result.success && !result.skipped) {
-        console.log(`[EMAIL] Reschedule email sent: ${data.bookingId} -> ${data.clientEmail}`);
+        logger.info({ bookingId: data.bookingId, clientEmail: data.clientEmail }, '[EMAIL] Reschedule email sent');
       }
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send reschedule email for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send reschedule email');
       return { success: false, error: message };
     }
   }
@@ -186,7 +187,7 @@ export class EmailService {
     const { subject, html, text } = renderTeamRescheduleNotification(data);
 
     try {
-      const recipient = env.email.notificationRecipient || 'hello@waliliens.com';
+      const recipient = env.email.notificationRecipient || 'waliliens.ai@gmail.com';
       const result = await this.client.send({
         to: recipient,
         subject,
@@ -197,7 +198,7 @@ export class EmailService {
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`[EMAIL] Failed to send team reschedule for ${data.bookingId}:`, message);
+      logger.error({ err, bookingId: data.bookingId }, '[EMAIL] Failed to send team reschedule');
       return { success: false, error: message };
     }
   }

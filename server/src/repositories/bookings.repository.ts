@@ -2,6 +2,7 @@ import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { bookingsTable, type InsertBooking, type SelectBooking } from '../db/schema';
 import { ConflictError } from '../utils/http-errors';
+import { env, getTodayDateString } from '../config/env';
 
 export interface BookingFilterOptions {
   page?: number;
@@ -330,36 +331,32 @@ export class BookingsRepository {
   }
 
   public async getAdminStats(): Promise<AdminBookingStats> {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayDateString(env.booking.timezone);
     const nextWeekDate = new Date();
     nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-    const nextWeekStr = nextWeekDate.toISOString().split('T')[0];
+    const nextWeekStr = getTodayDateString(env.booking.timezone, nextWeekDate);
 
     try {
-      const allRows = await db.select().from(bookingsTable);
-
-      const totalBookings = allRows.length;
-      const confirmedBookings = allRows.filter((b) => b.status === 'confirmed').length;
-      const cancelledBookings = allRows.filter((b) => b.status === 'cancelled').length;
-      const completedBookings = allRows.filter((b) => b.status === 'completed').length;
-      const upcomingCalls = allRows.filter(
-        (b) => b.status === 'confirmed' && b.date >= todayStr
-      ).length;
-      const todayCalls = allRows.filter(
-        (b) => b.status === 'confirmed' && b.date === todayStr
-      ).length;
-      const thisWeekCalls = allRows.filter(
-        (b) => b.status === 'confirmed' && b.date >= todayStr && b.date <= nextWeekStr
-      ).length;
+      const [result] = await db
+        .select({
+          totalBookings: sql<number>`count(*)`,
+          confirmedBookings: sql<number>`count(*) filter (where ${bookingsTable.status} = 'confirmed')`,
+          cancelledBookings: sql<number>`count(*) filter (where ${bookingsTable.status} = 'cancelled')`,
+          completedBookings: sql<number>`count(*) filter (where ${bookingsTable.status} = 'completed')`,
+          upcomingCalls: sql<number>`count(*) filter (where ${bookingsTable.status} = 'confirmed' and ${bookingsTable.date} >= ${todayStr})`,
+          todayCalls: sql<number>`count(*) filter (where ${bookingsTable.status} = 'confirmed' and ${bookingsTable.date} = ${todayStr})`,
+          thisWeekCalls: sql<number>`count(*) filter (where ${bookingsTable.status} = 'confirmed' and ${bookingsTable.date} >= ${todayStr} and ${bookingsTable.date} <= ${nextWeekStr})`,
+        })
+        .from(bookingsTable);
 
       return {
-        totalBookings,
-        confirmedBookings,
-        cancelledBookings,
-        completedBookings,
-        upcomingCalls,
-        todayCalls,
-        thisWeekCalls,
+        totalBookings: Number(result?.totalBookings || 0),
+        confirmedBookings: Number(result?.confirmedBookings || 0),
+        cancelledBookings: Number(result?.cancelledBookings || 0),
+        completedBookings: Number(result?.completedBookings || 0),
+        upcomingCalls: Number(result?.upcomingCalls || 0),
+        todayCalls: Number(result?.todayCalls || 0),
+        thisWeekCalls: Number(result?.thisWeekCalls || 0),
       };
     } catch {
       const allRows = this.fallbackBookings;

@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
 import type { Project } from '../../types';
 import { X, ExternalLink, Award, CheckCircle2, Cpu } from 'lucide-react';
 import { soundManager } from '../../utils/sound';
 import { useCursor } from '../../context/CursorContext';
+import { useModalAccessibility } from '../../hooks/useModalAccessibility';
+import { getProjectImage } from '../../utils/projectImage';
 
 interface ProjectModalProps {
   project: Project | null;
@@ -12,27 +14,15 @@ interface ProjectModalProps {
 
 export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
   const { setCursorType, resetCursor } = useCursor();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalAccessibility(Boolean(project), dialogRef, onClose);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
     if (project) {
-      document.body.style.overflow = 'hidden';
       soundManager.playWhoosh(300, 700, 0.15);
-      window.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = 'unset';
     }
 
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [project, onClose]);
+  }, [project]);
 
   if (!project) return null;
 
@@ -40,7 +30,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
     <AnimatePresence>
       <div className="fixed inset-0 z-[9990] flex items-center justify-center p-4 sm:p-6 lg:p-10">
         {/* Backdrop */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -52,11 +42,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
         />
 
         {/* Modal Container */}
-        <motion.div
+        <m.div
+          ref={dialogRef}
           initial={{ opacity: 0, scale: 0.92, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="project-modal-title"
+          tabIndex={-1}
           className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-obsidian-900/95 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:p-10"
         >
           {/* Close Button */}
@@ -90,7 +85,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               )}
             </div>
 
-            <h3 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h3 id="project-modal-title" className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
               {project.title}
             </h3>
             <p className="text-base text-neutral-300">
@@ -101,8 +96,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           {/* Project Image Banner */}
           <div className="relative mt-8 overflow-hidden rounded-2xl border border-white/10">
             <img
-              src={project.image}
+              src={getProjectImage(project)}
               alt={project.title}
+              width={1000}
+              height={650}
+              loading="lazy"
               className="h-64 w-full object-cover sm:h-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-transparent to-transparent opacity-60" />
@@ -186,7 +184,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               <ExternalLink className="h-3.5 w-3.5" />
             </button>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </AnimatePresence>
   );

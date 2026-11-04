@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
+import { LazyMotion, MotionConfig, domAnimation } from 'framer-motion';
 import Lenis from 'lenis';
 import { router } from './routes';
 import { CursorProvider } from '../context/CursorContext';
@@ -29,12 +30,13 @@ export const App: React.FC = () => {
       wheelMultiplier: 0.9,
     });
 
+    let rafId = 0;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    const rafId = requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -45,18 +47,23 @@ export const App: React.FC = () => {
   return (
     <AdminAuthProvider>
       <CursorProvider>
-        <div className="relative min-h-screen bg-obsidian-950 text-neutral-100 selection:bg-cyber-cyan/30 selection:text-white">
-          {/* Preloader */}
-          {!loadingComplete && (
-            <Preloader onComplete={() => setLoadingComplete(true)} />
-          )}
+        <MotionConfig reducedMotion={prefersReducedMotion ? 'always' : 'never'}>
+          <LazyMotion features={domAnimation} strict>
+            <div className="relative min-h-screen bg-obsidian-950 text-neutral-100 selection:bg-cyber-cyan/30 selection:text-white">
+              <a href="#main-content" className="skip-link">
+                Skip to main content
+              </a>
 
-          {/* Global Spring Cursor */}
-          <CustomCursor />
+              {!loadingComplete && (
+                <Preloader onComplete={() => setLoadingComplete(true)} />
+              )}
 
-          {/* Router Provider */}
-          <RouterProvider router={router} />
-        </div>
+              <CustomCursor />
+
+              <RouterProvider router={router} />
+            </div>
+          </LazyMotion>
+        </MotionConfig>
       </CursorProvider>
     </AdminAuthProvider>
   );

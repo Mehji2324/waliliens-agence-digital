@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { Logo } from '../ui/Logo';
 
@@ -9,14 +9,14 @@ interface PreloaderProps {
 
 export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   const prefersReducedMotion = useReducedMotion();
+  const [hasSeenPreloader] = useState(() =>
+    typeof window !== 'undefined' && sessionStorage.getItem('walili_preloader_seen') === 'true',
+  );
   const [percent, setPercent] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
-    // If reduced motion or already seen in current session, complete immediately
-    const hasSeenPreloader = sessionStorage.getItem('walili_preloader_seen');
     if (prefersReducedMotion || hasSeenPreloader) {
-      setIsFinished(true);
       onComplete();
       return;
     }
@@ -42,14 +42,15 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [onComplete, prefersReducedMotion]);
+  }, [hasSeenPreloader, onComplete, prefersReducedMotion]);
 
-  if (prefersReducedMotion) return null;
+  if (prefersReducedMotion || hasSeenPreloader) return null;
 
   return (
     <AnimatePresence>
       {!isFinished && (
-        <motion.div
+        <m.div
+          aria-hidden="true"
           initial={{ opacity: 1 }}
           exit={{
             clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
@@ -59,18 +60,18 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         >
           <div className="relative z-10 flex flex-col items-center">
             {/* Minimalist Studio Mark */}
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}
               className="flex items-center gap-3"
             >
               <Logo size={46} />
-            </motion.div>
+            </m.div>
 
             {/* Quick Loading Bar */}
             <div className="mt-6 h-1 w-48 overflow-hidden rounded-full bg-obsidian-800">
-              <motion.div
+              <m.div
                 className="h-full bg-gradient-to-r from-cyber-cyan via-cyber-violet to-cyber-purple"
                 style={{ width: `${percent}%` }}
               />
@@ -81,7 +82,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
               <span className="font-bold text-white">{percent}%</span>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
