@@ -27,7 +27,7 @@ export class EmailService {
   }
 
   public async sendBookingConfirmation(data: BookingEmailData): Promise<SendEmailResult> {
-    const { subject, html, text } = renderBookingConfirmationEmail(data);
+    const { subject, html, text } = renderBookingConfirmationEmail(data, env.clientUrl);
 
     try {
       const result = await this.client.send({

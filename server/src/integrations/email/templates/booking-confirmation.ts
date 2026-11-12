@@ -10,7 +10,7 @@ export function escapeHtml(str: string | undefined | null): string {
     .replace(/'/g, '&#039;');
 }
 
-export function renderBookingConfirmationEmail(data: BookingEmailData): {
+export function renderBookingConfirmationEmail(data: BookingEmailData, clientUrl: string): {
   subject: string;
   html: string;
   text: string;
@@ -23,6 +23,7 @@ export function renderBookingConfirmationEmail(data: BookingEmailData): {
   const safeTime = escapeHtml(data.time);
   const safeTimezone = escapeHtml(data.timezone);
   const safeMeetingUrl = data.meetingUrl;
+  const safeClientUrl = escapeHtml(clientUrl);
 
   const subject = 'Your Waliliens Discovery Call is Confirmed';
 
@@ -50,7 +51,7 @@ We look forward to discussing your technical architecture and design goals.
 
 ────────────────────────────────────────────────────
 Waliliens — Digital experiences engineered with precision.
-https://waliliens.com
+${clientUrl}
 `.trim();
 
   const html = `
@@ -182,6 +183,9 @@ https://waliliens.com
               </p>
               <p style="margin: 0; font-size: 11px; color: #6B7280;">
                 Digital products & AI experiences engineered with precision.
+              </p>
+              <p style="margin: 8px 0 0; font-size: 11px;">
+                <a href="${safeClientUrl}" style="color: #9CA3AF;">${safeClientUrl}</a>
               </p>
             </td>
           </tr>

@@ -28,7 +28,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9990] flex items-center justify-center p-4 sm:p-6 lg:p-10">
+      <div className="fixed inset-0 z-[9990] flex items-start justify-center overflow-y-auto p-4 sm:items-center sm:p-6 lg:p-10">
         {/* Backdrop */}
         <m.div
           initial={{ opacity: 0 }}
@@ -52,7 +52,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           aria-modal="true"
           aria-labelledby="project-modal-title"
           tabIndex={-1}
-          className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-obsidian-900/95 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:p-10"
+          className="relative z-10 my-auto max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-3xl border border-white/15 bg-obsidian-900/95 p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-10"
         >
           {/* Close Button */}
           <button
@@ -107,13 +107,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           </div>
 
           {/* Impact Metrics Banner */}
-          <div className="mt-8 grid grid-cols-3 gap-4 rounded-2xl border border-white/10 bg-obsidian-950/60 p-5 text-center">
+          <div className="mt-8 grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-obsidian-950/60 p-4 text-center sm:grid-cols-3 sm:gap-4 sm:p-5">
             {project.impactMetrics.map((metric, i) => (
               <div key={i}>
-                <div className="font-display text-2xl font-black text-cyber-cyan sm:text-3xl">
+                <div className="break-words font-display text-xl font-black text-cyber-cyan [overflow-wrap:anywhere] sm:text-3xl">
                   {metric.metric}
                 </div>
-                <div className="mt-1 font-mono text-xs text-neutral-400">
+                <div className="mt-1 break-words font-mono text-[11px] text-neutral-400 [overflow-wrap:anywhere] sm:text-xs">
                   {metric.label}
                 </div>
               </div>

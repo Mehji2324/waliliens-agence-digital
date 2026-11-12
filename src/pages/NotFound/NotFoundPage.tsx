@@ -13,7 +13,7 @@ export const NotFoundPage: React.FC = () => {
   });
 
   return (
-    <div className="bg-obsidian-950">
+    <main id="main-content" tabIndex={-1} className="bg-obsidian-950">
       <PageHeader
         badge="ERROR 404 // UNKNOWN PROTOCOL"
         title="COORDINATES"
@@ -37,6 +37,6 @@ export const NotFoundPage: React.FC = () => {
           </div>
         </div>
       </Section>
-    </div>
+    </main>
   );
 };

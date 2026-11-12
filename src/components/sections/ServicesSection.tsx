@@ -14,7 +14,7 @@ export const ServicesSection: React.FC = () => {
   };
 
   return (
-    <section id="services" className="relative bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
+    <section id="services" className="relative overflow-x-clip bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
       {/* Background Glow */}
       <div className="pointer-events-none absolute right-10 top-1/3 h-96 w-96 rounded-full bg-cyber-cyan/10 blur-[130px]" />
 

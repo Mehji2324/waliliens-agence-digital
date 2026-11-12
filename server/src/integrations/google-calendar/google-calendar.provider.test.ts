@@ -7,6 +7,7 @@ import type { calendar_v3 } from 'googleapis';
 
 describe('GoogleCalendarBookingProvider', () => {
   let provider: GoogleCalendarBookingProvider;
+  let originalTimezone: string;
   let mockCalendar: {
     freebusy: {
       query: ReturnType<typeof vi.fn>;
@@ -18,6 +19,8 @@ describe('GoogleCalendarBookingProvider', () => {
   };
 
   beforeEach(() => {
+    originalTimezone = env.booking.timezone;
+    env.booking.timezone = 'Africa/Casablanca';
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-10-01T09:00:00Z'));
     vi.clearAllMocks();
@@ -37,6 +40,7 @@ describe('GoogleCalendarBookingProvider', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    env.booking.timezone = originalTimezone;
   });
 
   describe('Slot Generation & FreeBusy Filtering', () => {
@@ -46,8 +50,8 @@ describe('GoogleCalendarBookingProvider', () => {
       expect(slots).toHaveLength(16);
       expect(slots[0].startTime).toBe('10:00');
       expect(slots[0].endTime).toBe('10:30');
-      expect(slots[0].startIso).toBe('2026-10-15T09:00:00.000Z');
-      expect(slots[0].endIso).toBe('2026-10-15T09:30:00.000Z');
+      expect(slots[0].startIso).toBe('2026-10-15T10:00:00.000Z');
+      expect(slots[0].endIso).toBe('2026-10-15T10:30:00.000Z');
       expect(slots[15].startTime).toBe('17:30');
       expect(slots[15].endTime).toBe('18:00');
     });
@@ -55,15 +59,15 @@ describe('GoogleCalendarBookingProvider', () => {
     it('filters out busy periods returned by Google Calendar FreeBusy API', async () => {
       const targetDate = '2026-10-15';
 
-      // Mock Google FreeBusy: 13:00 to 14:00 local time in Africa/Casablanca (UTC+1) is 12:00 to 13:00 UTC
+      // On this date Morocco is on UTC+0, so 13:00 to 14:00 local is 13:00 to 14:00 UTC.
       mockCalendar.freebusy.query.mockResolvedValue({
         data: {
           calendars: {
             primary: {
               busy: [
                 {
-                  start: `${targetDate}T12:00:00.000Z`,
-                  end: `${targetDate}T13:00:00.000Z`,
+                  start: `${targetDate}T13:00:00.000Z`,
+                  end: `${targetDate}T14:00:00.000Z`,
                 },
               ],
             },
@@ -87,19 +91,18 @@ describe('GoogleCalendarBookingProvider', () => {
       expect(slot1000?.available).toBe(true);
     });
 
-    it('correctly maps UTC busy periods from Google Calendar to the business timezone (Africa/Casablanca, UTC+1)', async () => {
+    it('correctly maps UTC busy periods from Google Calendar to the business timezone (Africa/Casablanca, UTC+0)', async () => {
       const targetDate = '2026-10-15';
 
-      // In Africa/Casablanca (UTC+1 on Oct 15, 2026), 10:00 AM local time corresponds to 09:00 UTC.
-      // A busy period in Google Calendar from 09:00:00Z to 09:30:00Z represents 10:00 AM local time.
+      // In Africa/Casablanca (UTC+0 on Oct 15, 2026), 10:00 AM local corresponds to 10:00 UTC.
       mockCalendar.freebusy.query.mockResolvedValue({
         data: {
           calendars: {
             primary: {
               busy: [
                 {
-                  start: `${targetDate}T09:00:00.000Z`,
-                  end: `${targetDate}T09:30:00.000Z`,
+                  start: `${targetDate}T10:00:00.000Z`,
+                  end: `${targetDate}T10:30:00.000Z`,
                 },
               ],
             },
@@ -111,7 +114,7 @@ describe('GoogleCalendarBookingProvider', () => {
 
       const availableSlots = await provider.getAvailableSlots(targetDate);
 
-      // The 10:00 AM Casablanca slot (09:00 UTC) must be unavailable
+      // The 10:00 AM Casablanca slot (10:00 UTC) must be unavailable
       const slot1000 = availableSlots.find((s) => s.id === `${targetDate}-slot-1`);
       // The 11:00 AM Casablanca slot (10:00 UTC, slot-3) must be available
       const slot1100 = availableSlots.find((s) => s.id === `${targetDate}-slot-3`);
@@ -276,11 +279,11 @@ describe('GoogleCalendarBookingProvider', () => {
           requestBody: expect.objectContaining({
             summary: expect.stringContaining('Alex Rivera'),
             start: {
-              dateTime: `${targetDate}T09:00:00.000Z`,
+              dateTime: `${targetDate}T10:00:00.000Z`,
               timeZone: 'Africa/Casablanca',
             },
             end: {
-              dateTime: `${targetDate}T09:30:00.000Z`,
+              dateTime: `${targetDate}T10:30:00.000Z`,
               timeZone: 'Africa/Casablanca',
             },
           }),

@@ -43,8 +43,8 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian-950/80 backdrop-blur-md animate-fade-in">
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="contact-details-title" tabIndex={-1} className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-obsidian-900 p-6 sm:p-8 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-obsidian-950/80 p-4 backdrop-blur-md animate-fade-in sm:items-center">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="contact-details-title" tabIndex={-1} className="relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto overscroll-contain rounded-3xl border border-white/15 bg-obsidian-900 p-5 shadow-2xl sm:p-8">
         <button
           onClick={onClose}
           aria-label="Close contact details"
@@ -57,9 +57,9 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan">
             <MessageSquare className="h-5 w-5" />
           </div>
-          <div>
+          <div className="min-w-0 pr-8">
             <h3 id="contact-details-title" className="font-display text-lg font-bold text-white">{contact.name}</h3>
-            <a href={`mailto:${contact.email}`} className="font-mono text-xs text-cyber-cyan hover:underline">
+            <a href={`mailto:${contact.email}`} className="break-all font-mono text-xs text-cyber-cyan hover:underline">
               {contact.email}
             </a>
           </div>
@@ -159,7 +159,7 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}

@@ -32,21 +32,23 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, subtitle, onOpe
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-white/10 bg-obsidian-950/80 px-6 sm:px-10 backdrop-blur-xl">
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 items-center gap-3 sm:gap-4">
         <button
           onClick={onOpenSidebar}
+          aria-label="Open admin navigation"
+          aria-haspopup="true"
           className="rounded-xl border border-white/10 p-2 text-neutral-400 hover:text-white lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <div>
-          <h1 className="font-display text-lg sm:text-xl font-bold text-white tracking-wide">{title}</h1>
+        <div className="min-w-0">
+          <h1 className="break-words font-display text-base font-bold tracking-wide text-white sm:text-xl">{title}</h1>
           {subtitle && <p className="font-mono text-xs text-neutral-400 hidden sm:block">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         {/* Live Casablanca Studio Clock */}
         <div className="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-obsidian-900/60 px-3.5 py-1.5 font-mono text-xs text-neutral-300">
           <span className="h-2 w-2 rounded-full bg-cyber-emerald animate-pulse" />

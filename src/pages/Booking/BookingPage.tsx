@@ -158,13 +158,13 @@ export const BookingPage: React.FC = () => {
 
                 {/* Meeting Credentials Card */}
                 <div className="mt-6 w-full max-w-md rounded-2xl border border-white/10 bg-obsidian-950/80 p-5 text-left font-mono text-xs space-y-3 shadow-inner">
-                  <div className="flex justify-between text-neutral-400">
+                  <div className="flex flex-wrap items-start justify-between gap-2 text-neutral-400">
                     <span>BOOKING ID:</span>
-                    <span className="text-white font-bold">{confirmationData.bookingId}</span>
+                    <span className="min-w-0 break-all text-right font-bold text-white">{confirmationData.bookingId}</span>
                   </div>
-                  <div className="flex justify-between text-neutral-400">
+                  <div className="flex flex-wrap items-start justify-between gap-2 text-neutral-400">
                     <span>SCHEDULED TIME:</span>
-                    <span className="text-cyber-cyan font-bold">{confirmationData.scheduledTime}</span>
+                    <span className="min-w-0 break-words text-right font-bold text-cyber-cyan">{confirmationData.scheduledTime}</span>
                   </div>
                   <div className="flex justify-between text-neutral-400">
                     <span>DURATION:</span>

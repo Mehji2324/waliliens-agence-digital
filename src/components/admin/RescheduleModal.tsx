@@ -66,8 +66,8 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian-950/80 backdrop-blur-md animate-fade-in">
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="reschedule-title" tabIndex={-1} className="relative w-full max-w-lg rounded-3xl border border-cyber-cyan/30 bg-obsidian-900 p-6 sm:p-8 shadow-2xl shadow-cyan-950/40">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-obsidian-950/80 p-4 backdrop-blur-md animate-fade-in sm:items-center">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="reschedule-title" tabIndex={-1} className="relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl border border-cyber-cyan/30 bg-obsidian-900 p-5 shadow-2xl shadow-cyan-950/40 sm:p-8">
         <button
           onClick={onClose}
           aria-label="Close reschedule dialog"
@@ -150,7 +150,7 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}

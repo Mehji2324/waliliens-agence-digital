@@ -11,9 +11,12 @@ export function getPool(): Pool {
     const connectionString = env.databaseUrl || 'postgresql://postgres:postgres@localhost:5432/waliliens';
     pool = new Pool({
       connectionString,
-      max: isProd ? 20 : 10,
-      idleTimeoutMillis: 30000,
+      // Serverless instances are short lived and may scale horizontally. Keep
+      // each instance's pool small so total PostgreSQL connections stay bounded.
+      max: isProd ? 3 : 5,
+      idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
+      allowExitOnIdle: true,
     });
 
     pool.on('error', (err) => {

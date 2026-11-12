@@ -35,7 +35,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </m.div>
 
         <div className="mt-5">
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
+          <h1 className="font-display text-[clamp(2rem,8.5vw,4.5rem)] font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl [overflow-wrap:anywhere]">
             <TextReveal text={title} delay={0.1} />
             {titleGradient && (
               <>

@@ -69,7 +69,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="relative bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
+    <section id="contact" className="relative overflow-x-clip bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
       {/* Ambient Lighting Cones */}
       <div className="pointer-events-none absolute right-1/4 top-1/2 -translate-y-1/2 h-[450px] w-[450px] rounded-full bg-cyber-violet/15 blur-[140px]" />
 

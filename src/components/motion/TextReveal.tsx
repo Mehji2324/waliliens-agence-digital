@@ -59,17 +59,17 @@ export const TextReveal: React.FC<TextRevealProps> = ({
 
     return (
       <m.span
-        className={`inline-flex flex-wrap gap-x-[0.28em] ${className}`}
+        className={`inline-flex max-w-full flex-wrap gap-x-[0.28em] ${className}`}
         variants={container}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
       >
         {words.map((word, index) => (
-          <span key={index} className="inline-block overflow-hidden pb-1">
+          <span key={index} className="inline-block min-w-0 max-w-full overflow-hidden pb-1 [overflow-wrap:break-word]">
             <m.span
               variants={child}
-              className={`inline-block ${gradient ? 'gradient-text-hero' : ''}`}
+              className={`inline-block max-w-full [overflow-wrap:break-word] ${gradient ? 'gradient-text-hero' : ''}`}
             >
               {word}
             </m.span>

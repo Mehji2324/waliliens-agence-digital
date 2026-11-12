@@ -45,14 +45,12 @@ export const HeroSection: React.FC = () => {
 
         {/* Hero Headline with Masked Word Stagger */}
         <div className="mt-7">
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[5rem] leading-[1.08]">
-            <TextReveal text="WE DESIGN & BUILD" delay={0.15} type="words" />
-            <br />
-            <span className="gradient-text-hero">
-              <TextReveal text="HIGH-CONVERTING EXPERIENCES" delay={0.3} type="words" />
+          <h1 className="font-display text-[clamp(1.25rem,6.5vw,5rem)] font-extrabold tracking-tight leading-[1.08] text-white sm:text-5xl xl:text-[5rem]">
+            <span className="block"><TextReveal text="WE DESIGN & BUILD" delay={0.15} type="words" /></span>
+            <span className="block">
+              <TextReveal text="HIGH-CONVERTING EXPERIENCES" delay={0.3} type="words" gradient />
             </span>
-            <br />
-            <TextReveal text="POWERED BY MOTION & AI." delay={0.45} type="words" />
+            <span className="block"><TextReveal text="POWERED BY MOTION & AI." delay={0.45} type="words" /></span>
           </h1>
 
           <m.p

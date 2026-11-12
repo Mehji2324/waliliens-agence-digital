@@ -41,7 +41,7 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <AdminLayout title="Operations Terminal" subtitle="Live Booking & Inquiries Overview">
       {/* Header Actions */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-2xl font-bold text-white">Studio Overview</h2>
           <p className="font-mono text-xs text-neutral-400">Real-time metrics from Google Calendar and PostgreSQL</p>
@@ -64,7 +64,7 @@ export const AdminDashboardPage: React.FC = () => {
       ) : null}
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-10">
+      <div className="mb-10 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-2xl border border-white/10 bg-obsidian-900/80 p-5 backdrop-blur-xl">
           <div className="flex items-center justify-between text-neutral-400 mb-2">
             <span className="font-mono text-[11px] uppercase">Upcoming Calls</span>
@@ -109,7 +109,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="font-mono text-[10px] text-neutral-400 mt-1">In good standing</div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-obsidian-900/80 p-5 backdrop-blur-xl col-span-2 sm:col-span-1">
+        <div className="rounded-2xl border border-white/10 bg-obsidian-900/80 p-5 backdrop-blur-xl">
           <div className="flex items-center justify-between text-neutral-400 mb-2">
             <span className="font-mono text-[11px] uppercase">Cancelled</span>
             <span className="h-2 w-2 rounded-full bg-rose-500" />

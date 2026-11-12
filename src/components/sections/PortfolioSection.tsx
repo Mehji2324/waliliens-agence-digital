@@ -29,7 +29,7 @@ export const PortfolioSection: React.FC = () => {
       : projects.filter((p) => p.category === selectedCategory);
 
   return (
-    <section id="portfolio" className="relative bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
+    <section id="portfolio" className="relative overflow-x-clip bg-obsidian-950 px-6 py-24 sm:px-12 lg:px-24">
       {/* Background Ambient Aura */}
       <div className="pointer-events-none absolute -bottom-40 left-1/3 h-96 w-96 rounded-full bg-cyber-violet/15 blur-[140px]" />
 

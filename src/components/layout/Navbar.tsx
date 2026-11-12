@@ -73,7 +73,7 @@ export const Navbar: React.FC = () => {
         <div className="mx-auto max-w-7xl px-6 sm:px-12">
           <nav
             aria-label="Primary"
-            className={`flex items-center justify-between rounded-full px-5 transition-all duration-300 ${
+            className={`flex items-center justify-between rounded-full px-3 transition-all duration-300 sm:px-4 lg:px-5 ${
               isScrolled
                 ? 'border border-white/10 bg-obsidian-900/85 py-2 shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl'
                 : 'border border-transparent bg-transparent py-2.5'
@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden items-center gap-1 md:flex">
+            <div className="hidden items-center gap-1 xl:flex">
               {MAIN_NAV_ITEMS.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -116,7 +116,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Right Controls: Book a Call CTA + Audio Toggle + Start Project */}
-            <div className="hidden items-center gap-3 md:flex">
+            <div className="hidden items-center gap-2 xl:flex xl:gap-3">
               {/* Secondary CTA: Book a 30-min call */}
               <Link
                 to="/book"
@@ -128,7 +128,7 @@ export const Navbar: React.FC = () => {
                 <span>BOOK A CALL</span>
               </Link>
 
-              <div className="max-[767px]:hidden">
+              <div className="hidden lg:block">
                 <SoundToggle />
               </div>
 
@@ -136,7 +136,7 @@ export const Navbar: React.FC = () => {
                 href="/contact"
                 as="a"
                 variant="primary"
-                className="py-2 px-5 text-xs font-bold"
+                className="whitespace-nowrap py-2 px-2 text-[10px] font-bold lg:px-5 lg:text-xs"
               >
                 <span>START A PROJECT</span>
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -144,7 +144,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="flex items-center gap-2 md:hidden">
+            <div className="flex items-center gap-2 xl:hidden">
               <div className="max-[767px]:hidden">
                 <SoundToggle />
               </div>
@@ -174,7 +174,7 @@ export const Navbar: React.FC = () => {
             aria-modal={mobileMenuOpen ? true : undefined}
             aria-hidden={!mobileMenuOpen}
             aria-label="Mobile navigation"
-            className={`${mobileMenuOpen ? 'flex' : 'hidden'} fixed inset-0 z-40 flex-col justify-between bg-obsidian-950/98 px-6 pt-28 pb-10 backdrop-blur-2xl md:hidden motion-safe:animate-fade-in`}
+            className={`${mobileMenuOpen ? 'flex' : 'hidden'} fixed inset-0 z-40 flex-col justify-between overflow-y-auto overscroll-contain bg-obsidian-950/98 px-6 pt-28 pb-10 backdrop-blur-2xl xl:hidden motion-safe:animate-fade-in`}
           >
             <div className="space-y-6">
               <div className="font-mono text-xs text-cyber-cyan">

@@ -5,6 +5,7 @@ import { renderBookingConfirmationEmail, escapeHtml } from './templates/booking-
 import { renderBookingNotificationEmail } from './templates/booking-notification';
 import type { BookingEmailData } from './email.types';
 import type { Resend } from 'resend';
+import { env } from '../../config/env';
 
 describe('Phase 6: Email Integration & Notification System', () => {
   const sampleBooking: BookingEmailData = {
@@ -32,7 +33,10 @@ describe('Phase 6: Email Integration & Notification System', () => {
     });
 
     it('renders client confirmation email with complete session details and Google Meet CTA', () => {
-      const { subject, html, text } = renderBookingConfirmationEmail(sampleBooking);
+      const { subject, html, text } = renderBookingConfirmationEmail(
+        sampleBooking,
+        'https://preview.waliliens.com'
+      );
 
       expect(subject).toBe('Your Waliliens Discovery Call is Confirmed');
       expect(html).toContain('Sarah Connor');
@@ -43,6 +47,17 @@ describe('Phase 6: Email Integration & Notification System', () => {
       expect(html).toContain('https://meet.google.com/xyz-uvwx-rst');
       expect(html).toContain('JOIN GOOGLE MEET');
       expect(text).toContain('https://meet.google.com/xyz-uvwx-rst');
+    });
+
+    it.each([
+      ['Preview', 'https://preview.waliliens.com'],
+      ['Production', 'https://waliliens.com'],
+    ])('uses the configured %s CLIENT_URL in both email formats', (_environment, clientUrl) => {
+      const { html, text } = renderBookingConfirmationEmail(sampleBooking, clientUrl);
+
+      expect(html).toContain(`href="${clientUrl}"`);
+      expect(html).toContain(`>${clientUrl}</a>`);
+      expect(text).toContain(clientUrl);
     });
 
     it('renders internal team notification email with client data and scope', () => {
@@ -116,6 +131,25 @@ describe('Phase 6: Email Integration & Notification System', () => {
       expect(status.client).toBe('sent');
       expect(status.team).toBe('sent');
       expect(mockEmailClient.send).toHaveBeenCalledTimes(2);
+    });
+
+    it('passes the configured CLIENT_URL into the booking confirmation email', async () => {
+      const originalClientUrl = env.clientUrl;
+      const previewUrl = 'https://preview.waliliens.com';
+      env.clientUrl = previewUrl;
+      vi.spyOn(mockEmailClient, 'send').mockResolvedValue({ success: true, id: 'msg_client_ok' });
+
+      try {
+        await emailService.sendBookingConfirmation(sampleBooking);
+        expect(mockEmailClient.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            html: expect.stringContaining(`href="${previewUrl}"`),
+            text: expect.stringContaining(previewUrl),
+          })
+        );
+      } finally {
+        env.clientUrl = originalClientUrl;
+      }
     });
 
     it('handles partial email failures safely without throwing', async () => {

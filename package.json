@@ -22,6 +22,8 @@
     "db:seed": "npm run db:seed --prefix server"
   },
   "dependencies": {
+    "@neon/config": "^1.11.3",
+    "@neon/env": "^1.6.15",
     "@sentry/react": "^11.2.0",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

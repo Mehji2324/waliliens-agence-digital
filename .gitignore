@@ -32,3 +32,6 @@ server/.env*.local
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*
+.neon

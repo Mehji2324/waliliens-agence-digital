@@ -1,33 +1,43 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
 import path from 'path';
-import { db, getPool, checkDatabaseConnection } from './index';
+import * as schema from './schema';
+
+// Neon CLI writes its pulled connection variables to the repository root.
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 async function runMigrations() {
   console.log('🔄 Running PostgreSQL migrations via Drizzle ORM...');
 
-  const dbStatus = await checkDatabaseConnection();
-  if (!dbStatus.connected) {
-    console.error('❌ Database connection failed:', dbStatus.error);
-    process.exit(1);
+  const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ DATABASE_URL_UNPOOLED or DATABASE_URL is required.');
+    process.exitCode = 1;
+    return;
   }
+
+  const pool = new Pool({ connectionString, max: 1, connectionTimeoutMillis: 5000 });
+  const migrationDb = drizzle(pool, { schema });
 
   const migrationsFolder = path.resolve(__dirname, '../../drizzle');
   console.log(`📁 Applying migrations from: ${migrationsFolder}`);
 
   try {
-    await migrate(db, { migrationsFolder });
+    await pool.query('SELECT 1');
+    await migrate(migrationDb, { migrationsFolder });
     console.log('✨ All migrations applied successfully!');
-  } catch (err) {
-    console.error('❌ Migration failed:', err);
-    process.exit(1);
+  } catch {
+    // Avoid printing driver errors that can include connection details.
+    console.error('❌ Migration failed. Error details suppressed to protect credentials.');
+    process.exitCode = 1;
   } finally {
-    await getPool().end();
+    await pool.end();
   }
-
-  process.exit(0);
 }
 
-runMigrations().catch((err) => {
-  console.error('❌ Uncaught migration error:', err);
-  process.exit(1);
+runMigrations().catch(() => {
+  console.error('❌ Uncaught migration error. Error details suppressed to protect credentials.');
+  process.exitCode = 1;
 });
