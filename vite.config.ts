@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
@@ -19,6 +19,15 @@ export default defineConfig({
       },
     },
   },
+  // Guardrail: VITE_API_URL is development-only. A stray local .env file
+  // (e.g. uploaded by `vercel deploy` from a developer machine) must never
+  // leak an absolute localhost API URL into a production bundle — that makes
+  // every visitor's browser call their own localhost and fail with
+  // "Failed to load projects". In production builds the frontend always
+  // talks to the same origin via relative /api/... requests.
+  define: mode === 'production'
+    ? { 'import.meta.env.VITE_API_URL': 'undefined' }
+    : {},
   build: {
     // Generate source maps only for staging; omit for production to reduce bundle exposure
     sourcemap: false,
@@ -33,4 +42,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
