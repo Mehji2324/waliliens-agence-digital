@@ -9,7 +9,7 @@ import { useSeo } from '../../hooks/useSeo';
 import { ArrowUpRight, Award } from 'lucide-react';
 import { MagneticButton } from '../../components/motion/MagneticButton';
 import { soundManager } from '../../utils/sound';
-import { getProjectImage } from '../../utils/projectImage';
+import { ProjectCardMedia } from '../../components/ui/ProjectCardMedia';
 import { useCursor } from '../../context/CursorContext';
 import { useProjects } from '../../hooks/useCatalogData';
 
@@ -94,14 +94,7 @@ export const WorkPage: React.FC = () => {
                 >
                   <div className="group relative overflow-hidden rounded-2xl">
                     <div className="relative h-72 w-full overflow-hidden bg-obsidian-950 sm:h-80">
-                      <img
-                        src={getProjectImage(project)}
-                        alt={project.title}
-                        width={1000}
-                        height={650}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                      />
+                      <ProjectCardMedia project={project} className="h-full w-full" />
                       <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/40 to-transparent" />
 
                       <div className="absolute left-5 right-5 top-5 flex items-center justify-between">

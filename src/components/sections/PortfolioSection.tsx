@@ -6,7 +6,7 @@ import { ProjectModal } from '../ui/ProjectModal';
 import { Sparkles, ArrowUpRight, Award, PlayCircle, Globe } from 'lucide-react';
 import { useCursor } from '../../context/CursorContext';
 import { soundManager } from '../../utils/sound';
-import { getProjectImage } from '../../utils/projectImage';
+import { ProjectCardMedia } from '../ui/ProjectCardMedia';
 import { useProjects } from '../../hooks/useCatalogData';
 
 export const PortfolioSection: React.FC = () => {
@@ -96,16 +96,9 @@ export const PortfolioSection: React.FC = () => {
                   className="cursor-pointer p-0"
                 >
                   <div className="group relative overflow-hidden rounded-2xl">
-                    {/* Media Thumbnail */}
+                    {/* Media Thumbnail (with hover/in-view video preview) */}
                     <div className="relative h-72 w-full overflow-hidden bg-obsidian-950 sm:h-80">
-                      <img
-                        src={getProjectImage(project)}
-                        alt={project.title}
-                        width={1000}
-                        height={650}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                      />
+                      <ProjectCardMedia project={project} className="h-full w-full" />
                       <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/40 to-transparent" />
 
                       {/* Badges */}
