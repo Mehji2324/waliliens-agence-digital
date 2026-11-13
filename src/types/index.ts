@@ -16,6 +16,8 @@ export interface Project {
   accentColor: string;
   featured: boolean;
   award?: string;
+  videoUrl?: string;
+  demoUrl?: string;
   caseStudy: {
     overview: string;
     challenge: string;

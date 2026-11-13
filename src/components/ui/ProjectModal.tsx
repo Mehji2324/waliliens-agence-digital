@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import type { Project } from '../../types';
-import { X, ExternalLink, Award, CheckCircle2, Cpu } from 'lucide-react';
+import { X, ExternalLink, Award, CheckCircle2, Cpu, Play, Globe } from 'lucide-react';
 import { soundManager } from '../../utils/sound';
 import { useCursor } from '../../context/CursorContext';
 import { useModalAccessibility } from '../../hooks/useModalAccessibility';
@@ -106,6 +106,26 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
             <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-transparent to-transparent opacity-60" />
           </div>
 
+          {/* Project Video */}
+          {project.videoUrl && (
+            <div className="mt-8">
+              <h4 className="font-display text-lg font-bold text-white">Project Showcase</h4>
+              <div className="relative mt-3 overflow-hidden rounded-2xl border border-white/10 bg-obsidian-950">
+                <video
+                  src={project.videoUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label={`Video showcase of ${project.title}`}
+                  className="aspect-video w-full bg-obsidian-950 object-contain"
+                />
+              </div>
+              <p className="mt-2 flex items-center gap-1.5 font-mono text-[11px] text-neutral-500">
+                <Play className="h-3 w-3" />
+                <span>PRODUCT DEMONSTRATION // CAPTURED SESSION</span>
+              </p>
+            </div>
+          )}
           {/* Impact Metrics Banner */}
           <div className="mt-8 grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-obsidian-950/60 p-4 text-center sm:grid-cols-3 sm:gap-4 sm:p-5">
             {project.impactMetrics.map((metric, i) => (
@@ -171,18 +191,34 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
             <span className="font-mono text-xs text-neutral-500">
               SYS_ID: WALILIENS-{project.id.toUpperCase()}
             </span>
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onClose();
-              }}
-              onMouseEnter={() => setCursorType('hover')}
-              onMouseLeave={resetCursor}
-              className="flex items-center gap-2 rounded-full border border-cyber-cyan/40 bg-cyber-cyan/10 px-6 py-2.5 font-mono text-xs font-semibold text-cyber-cyan transition-colors hover:bg-cyber-cyan hover:text-obsidian-950"
-            >
-              <span>DISMISS DOSSIER</span>
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              {project.demoUrl && (
+                <a
+                  href={project.demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onMouseEnter={() => setCursorType('hover')}
+                  onMouseLeave={resetCursor}
+                  onClick={() => soundManager.playClick()}
+                  className="flex items-center gap-2 rounded-full border border-cyber-violet/40 bg-cyber-violet/10 px-6 py-2.5 font-mono text-xs font-semibold text-cyber-violet transition-colors hover:bg-cyber-violet hover:text-white"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>VIEW LIVE DEMO</span>
+                </a>
+              )}
+              <button
+                onClick={() => {
+                  soundManager.playClick();
+                  onClose();
+                }}
+                onMouseEnter={() => setCursorType('hover')}
+                onMouseLeave={resetCursor}
+                className="flex items-center gap-2 rounded-full border border-cyber-cyan/40 bg-cyber-cyan/10 px-6 py-2.5 font-mono text-xs font-semibold text-cyber-cyan transition-colors hover:bg-cyber-cyan hover:text-obsidian-950"
+              >
+                <span>DISMISS DOSSIER</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </m.div>
       </div>

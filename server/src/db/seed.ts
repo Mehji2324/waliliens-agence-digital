@@ -35,6 +35,8 @@ async function seed() {
       accentColor: project.accentColor,
       featured: project.featured,
       award: project.award || null,
+      videoUrl: project.videoUrl || null,
+      demoUrl: project.demoUrl || null,
       caseStudy: project.caseStudy,
       createdAt: new Date(),
       updatedAt: new Date(),

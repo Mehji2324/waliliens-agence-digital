@@ -2,6 +2,39 @@ import type { Project } from '../types/domain';
 
 export const PROJECTS_DATA: Project[] = [
   {
+    id: 'bilal-bellil-topics',
+    title: 'Bilal Bellil Topics',
+    client: 'Serrada Community',
+    category: 'Web & Digital Products',
+    year: '2026',
+    badge: 'Client Work',
+    tagline: 'Moroccan Darija podcast platform — from story to live conversation',
+    description: 'An interactive Darija-language platform where the community chooses weekly topics, registers to speak, and becomes the voice of the next episode. Features a weekly program grid, audience registration for live segments like "The Clinic of Love" and "The Court", and open mic topic submission.',
+    impactMetrics: [
+      { metric: 'RTL', label: 'Arabic-First UX' },
+      { metric: '5', label: 'Weekly Live Segments' },
+      { metric: '100%', label: 'Community-Driven' }
+    ],
+    technologies: ['Next.js', 'React', 'TypeScript', 'Vercel', 'RTL Layout'],
+    image: '/images/project-bilal.jpeg',
+    accentColor: '#10B981',
+    featured: true,
+    award: 'Designed & built for Serrada For Life community',
+    videoUrl: '/videos/power-of-a-conversation.mp4',
+    demoUrl: 'https://demo-sit-web-bilal-blil.vercel.app/',
+    caseStudy: {
+      overview: 'Bilal Bellil needed a home for his Darija podcast — a place where listeners become participants, choosing topics and joining live segments instead of just tuning in.',
+      challenge: 'Building an Arabic RTL experience that feels natural and modern, while making community participation (topic submission, episode registration, weekly scheduling) effortless for non-technical users.',
+      solution: 'Designed an RTL-first Next.js interface with a weekly program grid, topic submission flow, and live segment registration cards, deployed on Vercel with instant global delivery.',
+      architectureDetails: [
+        'RTL-native layout with Darija-first copywriting and visual hierarchy',
+        'Weekly program grid with five themed live segments (Mon–Fri)',
+        'Open topic submission with registration state and deadline handling',
+        'Next.js static generation with image optimization on Vercel'
+      ]
+    }
+  },
+  {
     id: 'chronos-ai',
     title: 'Chronos Spatial OS',
     client: 'Chronos Labs',
@@ -20,6 +53,7 @@ export const PROJECTS_DATA: Project[] = [
     accentColor: '#00F0FF',
     featured: true,
     award: 'Featured on Awwwards & Godly Design',
+    videoUrl: '/videos/designing-the-intelligent-future.mp4',
     caseStudy: {
       overview: 'Chronos required an interface that makes complex multi-agent reasoning graphs visually intuitive and actionable for engineering teams.',
       challenge: 'Rendering dense network graphs and streaming agent thought processes simultaneously without browser UI lag or stutter.',

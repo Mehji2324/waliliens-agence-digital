@@ -52,6 +52,8 @@ export class ProjectsRepository {
           accentColor: data.accentColor,
           featured: data.featured,
           award: data.award,
+          videoUrl: data.videoUrl,
+          demoUrl: data.demoUrl,
           caseStudy: data.caseStudy,
           updatedAt: new Date(),
         },
@@ -79,6 +81,8 @@ export class ProjectsRepository {
       accentColor: row.accentColor,
       featured: row.featured,
       award: row.award || undefined,
+      videoUrl: row.videoUrl || undefined,
+      demoUrl: row.demoUrl || undefined,
       caseStudy: row.caseStudy,
     };
   }

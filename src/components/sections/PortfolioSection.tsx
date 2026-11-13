@@ -3,7 +3,7 @@ import { m, AnimatePresence } from 'framer-motion';
 import type { Project } from '../../types';
 import { TiltCard } from '../motion/TiltCard';
 import { ProjectModal } from '../ui/ProjectModal';
-import { Sparkles, ArrowUpRight, Award } from 'lucide-react';
+import { Sparkles, ArrowUpRight, Award, PlayCircle, Globe } from 'lucide-react';
 import { useCursor } from '../../context/CursorContext';
 import { soundManager } from '../../utils/sound';
 import { getProjectImage } from '../../utils/projectImage';
@@ -121,6 +121,23 @@ export const PortfolioSection: React.FC = () => {
                           </span>
                         )}
                       </div>
+                      {/* Media Indicators */}
+                      {(project.videoUrl || project.demoUrl) && (
+                        <div className="absolute bottom-5 left-5 flex items-center gap-2">
+                          {project.videoUrl && (
+                            <span className="flex items-center gap-1.5 rounded-full bg-obsidian-950/80 px-3 py-1 font-mono text-[10px] text-cyber-cyan backdrop-blur-md border border-white/10">
+                              <PlayCircle className="h-3 w-3" />
+                              <span>VIDEO</span>
+                            </span>
+                          )}
+                          {project.demoUrl && (
+                            <span className="flex items-center gap-1.5 rounded-full bg-obsidian-950/80 px-3 py-1 font-mono text-[10px] text-cyber-violet backdrop-blur-md border border-white/10">
+                              <Globe className="h-3 w-3" />
+                              <span>DEMO</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
 
                       {/* Action Icon */}
                       <div className="absolute bottom-5 right-5 flex h-11 w-11 items-center justify-center rounded-full bg-white text-obsidian-950 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-cyber-cyan">

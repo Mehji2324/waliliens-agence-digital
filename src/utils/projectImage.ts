@@ -5,6 +5,7 @@ const LOCAL_PROJECT_IMAGES: Record<string, string> = {
   'aether-spatial': '/images/project-aether.webp',
   'vortex-protocol': '/images/project-vortex.webp',
   'hyperion-fleet': '/images/project-hyperion.webp',
+  'bilal-bellil-topics': '/images/project-bilal.jpeg',
 };
 
 export const getProjectImage = (project: Project): string =>

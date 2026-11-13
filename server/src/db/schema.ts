@@ -30,6 +30,8 @@ export const projectsTable = pgTable(
     accentColor: varchar('accent_color', { length: 50 }).notNull(),
     featured: boolean('featured').notNull().default(false),
     award: text('award'),
+    videoUrl: text('video_url'),
+    demoUrl: text('demo_url'),
     caseStudy: jsonb('case_study').$type<CaseStudy>().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
