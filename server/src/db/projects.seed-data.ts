@@ -20,7 +20,6 @@ export const PROJECTS_DATA: Project[] = [
     accentColor: '#10B981',
     featured: true,
     award: 'Designed & built for Serrada For Life community',
-    videoUrl: '/videos/power-of-a-conversation.mp4',
     demoUrl: 'https://demo-sit-web-bilal-blil.vercel.app/',
     caseStudy: {
       overview: 'Bilal Bellil needed a home for his Darija podcast — a place where listeners become participants, choosing topics and joining live segments instead of just tuning in.',
