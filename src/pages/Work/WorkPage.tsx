@@ -46,7 +46,7 @@ export const WorkPage: React.FC = () => {
         description="A curated index of production deployments and technical showcases setting benchmarks in motion quality, conversion, and performance."
       />
 
-      <Section id="work-grid">
+      <Section id="work-grid" paddingClassName="pt-8 pb-16 sm:pt-10 sm:pb-20">
         {isLoading && <p className="mb-8 text-sm text-neutral-400" role="status">Loading projects…</p>}
         {error && <p className="mb-8 text-sm text-rose-300" role="alert">{error}</p>}
         {!isLoading && !error && projects.length === 0 && (
@@ -54,7 +54,7 @@ export const WorkPage: React.FC = () => {
         )}
 
         {/* Category Filters */}
-        <div className="flex flex-wrap gap-2 mb-12">
+        <div className="flex flex-wrap gap-2 mb-10">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -150,7 +150,7 @@ export const WorkPage: React.FC = () => {
         </m.div>
 
         {/* Bottom Kickoff Banner */}
-        <div className="mt-20 rounded-3xl border border-white/10 bg-obsidian-900/60 p-8 sm:p-12 text-center backdrop-blur-xl">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-obsidian-900/60 p-8 sm:p-12 text-center backdrop-blur-xl">
           <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
             Have a project in mind?
           </h3>

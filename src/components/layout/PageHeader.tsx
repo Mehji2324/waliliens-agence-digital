@@ -21,7 +21,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   children,
 }) => {
   return (
-    <div className="relative overflow-hidden bg-obsidian-950 pt-36 pb-16 border-b border-white/10">
+    <div className="relative overflow-hidden bg-obsidian-950 pt-32 pb-10 border-b border-white/10">
       {/* Ambient background aura */}
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[350px] w-[600px] rounded-full bg-cyber-violet/15 blur-[120px]" />
 
